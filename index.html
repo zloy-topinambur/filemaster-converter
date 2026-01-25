@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Dynamic SEO -->
+    <title id="pageTitle">Open DAT, BIN, Pages Files Online</title>
+    <meta name="description" id="metaDesc" content="Free online tool. Convert Pages to PDF, open DAT and Winmail.dat files. View binary files on Windows, Android and iOS.">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        /* Стили табов */
+        .tab-btn { 
+            transition: all 0.2s; 
+            border-bottom: 2px solid transparent; 
+            opacity: 0.6;
+        }
+        .tab-btn:hover { opacity: 1; }
+        .tab-btn.active { 
+            border-color: #2563eb; 
+            color: #2563eb; 
+            opacity: 1;
+            background: linear-gradient(to top, #eff6ff, transparent);
+        }
+        .drop-zone.active { border-color: #2563eb; background: #eff6ff; transform: scale(1.01); }
+        .animate-up { animation: slideUp 0.4s ease-out forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Typography for SEO Text */
+        .prose h2 { font-size: 1.1rem; font-weight: 800; color: #1e293b; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .prose p { margin-bottom: 0.8rem; font-size: 0.95rem; line-height: 1.6; }
+        .prose ul { list-style-type: disc; padding-left: 1.2rem; margin-bottom: 1rem; font-size: 0.95rem; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <a href="?" class="flex items-center space-x-2">
+                    <div class="bg-slate-900 text-white p-1.5 rounded-lg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    </div>
+                    <span class="text-xl font-bold tracking-tight">File<span class="text-blue-600">Master</span></span>
+                </a>
+
+                <!-- Language -->
+                <div class="flex items-center">
+                    <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-slate-100 text-sm font-bold text-slate-600 py-1 px-3 rounded-lg border-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                        <option value="en">🇺🇸 EN</option>
+                        <option value="ru">🇷🇺 RU</option>
+                        <option value="es">🇪🇸 ES</option>
+                        <option value="pt">🇵🇹 PT</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- TABS NAVIGATION -->
+            <nav class="flex -mb-px overflow-x-auto space-x-2 no-scrollbar pb-1">
+                <button onclick="switchTool('pages_view')" id="tab-pages_view" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700">
+                    <!-- Заполняется JS -->
+                </button>
+                <button onclick="switchTool('pages_conv')" id="tab-pages_conv" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700">
+                    <!-- Заполняется JS -->
+                </button>
+                <div class="w-px bg-slate-200 my-3 mx-1"></div> <!-- Separator -->
+                <button onclick="switchTool('dat')" id="tab-dat" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700">
+                    <!-- Заполняется JS -->
+                </button>
+                <button onclick="switchTool('winmail')" id="tab-winmail" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700">
+                    <!-- Заполняется JS -->
+                </button>
+                <button onclick="switchTool('bin')" id="tab-bin" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700">
+                    <!-- Заполняется JS -->
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-grow max-w-5xl mx-auto px-4 py-12 w-full">
+        
+        <!-- Hero -->
+        <div class="text-center mb-10 animate-up">
+            <h1 id="heroTitle" class="text-3xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight leading-tight">...</h1>
+            <p id="heroDesc" class="text-lg text-slate-500 max-w-2xl mx-auto">...</p>
+        </div>
+
+        <!-- Drop Zone -->
+        <div id="dropZone" class="bg-white border-4 border-dashed border-slate-200 rounded-[2.5rem] p-10 md:p-20 text-center cursor-pointer transition-all hover:border-blue-400 group relative mb-16 shadow-sm hover:shadow-md">
+            <input type="file" id="fileInput" class="hidden">
+            
+            <div id="idleState">
+                <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform shadow-inner">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                </div>
+                <h2 id="dropTitle" class="text-2xl font-bold text-slate-800 mb-3">...</h2>
+                <button id="btnBrowse" class="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-blue-600 transition-colors uppercase tracking-wider">...</button>
+            </div>
+
+            <div id="loadingState" class="hidden absolute inset-0 bg-white flex flex-col items-center justify-center z-10 rounded-[2.5rem]">
+                <div class="animate-spin w-14 h-14 border-4 border-slate-900 border-t-transparent rounded-full mb-4"></div>
+                <p id="loadingText" class="font-bold text-slate-500 uppercase text-xs tracking-widest animate-pulse">...</p>
+            </div>
+        </div>
+
+        <!-- Result -->
+        <div id="results" class="hidden space-y-8 animate-up">
+            <div class="flex items-center justify-between border-b pb-4">
+                <div>
+                    <h3 id="resLabel" class="text-xs font-bold text-green-600 uppercase tracking-widest">Done</h3>
+                    <p id="resFilename" class="text-xl font-bold text-slate-900 truncate max-w-[200px] md:max-w-md"></p>
+                </div>
+                <button onclick="location.reload()" id="btnReset" class="text-slate-400 hover:text-red-500 text-sm font-bold uppercase tracking-wider">Reset</button>
+            </div>
+
+            <!-- PDF Viewer (Pages) -->
+            <div id="pdfBlock" class="hidden">
+                <div class="bg-slate-800 p-2 rounded-2xl shadow-2xl mb-8">
+                    <iframe id="pdfFrame" class="w-full h-[700px] bg-white rounded-xl" src=""></iframe>
+                </div>
+                <div class="text-center">
+                    <a id="btnDownloadPdf" href="#" class="inline-block bg-blue-600 text-white px-12 py-4 rounded-xl font-bold shadow-xl hover:bg-blue-700 transition-transform active:scale-95 text-lg">Download PDF</a>
+                </div>
+            </div>
+
+            <!-- Grid (Dat/Bin/Winmail) -->
+            <div id="fileGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+            <!-- Hex (Bin) -->
+            <div id="hexBlock" class="hidden bg-slate-900 rounded-3xl p-8 text-white shadow-xl">
+                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Binary Preview</h4>
+                <div id="hexView" class="mono text-xs text-blue-300 break-all leading-relaxed font-light"></div>
+            </div>
+        </div>
+
+        <!-- Info / SEO -->
+        <section id="infoSection" class="mt-24 border-t border-slate-200 pt-16 grid md:grid-cols-2 gap-12">
+            <div>
+                <h3 id="infoTitle" class="text-3xl font-black text-slate-900 mb-6 tracking-tight">...</h3>
+                <div id="infoText" class="prose prose-slate text-slate-500"></div>
+            </div>
+            
+            <div class="bg-slate-100 p-10 rounded-[2.5rem]">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="bg-white p-2 rounded-lg shadow-sm text-blue-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    </div>
+                    <h4 id="secTitle" class="font-bold text-slate-900 text-lg">Security</h4>
+                </div>
+                <p id="secText" class="text-sm text-slate-500 leading-relaxed font-medium">...</p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 mt-auto py-12">
+        <div class="max-w-7xl mx-auto px-6 text-center text-xs text-slate-400">
+            <p>&copy; 2024 FileMaster Global. Secure & Private Tools.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- TRANSLATION & CONFIG ---
+        const DICT = {
+            ru: {
+                nav: {
+                    pages_view: "Смотреть .Pages",
+                    pages_conv: "Конвертировать Pages",
+                    dat: "Открыть .DAT",
+                    winmail: "Распаковать Winmail",
+                    bin: "Открыть .BIN"
+                },
+                hero: {
+                    pages_view: { t: "Просмотр файлов .Pages онлайн", d: "Как открыть файл Pages на Windows или Android? Наш вьювер покажет документ без установки программ." },
+                    pages_conv: { t: "Конвертер Pages в PDF", d: "Преобразование документов Apple Pages в формат PDF. Сохранение шрифтов и верстки." },
+                    dat: { t: "Открыть файл .DAT", d: "Бесплатный инструмент для открытия неизвестных файлов .dat. Поиск текста, фото и видео внутри." },
+                    winmail: { t: "Распаковка Winmail.dat", d: "Пришло письмо с winmail.dat? Извлеките из него нормальные файлы (Word, Excel, PDF)." },
+                    bin: { t: "Просмотр файлов .BIN", d: "Читалка бинарных файлов. Анализ структуры и просмотр Hex-кода." }
+                },
+                drop: { t: "Перетащите файл", b: "Выбрать на устройстве" },
+                ui: { success: "Файл обработан", reset: "Сбросить", dl: "Скачать", load: "Анализируем..." },
+                info: {
+                    pages_view: { 
+                        t: "Как посмотреть файл Pages?", 
+                        d: `<p>Если вам прислали файл с расширением <strong>.pages</strong>, а у вас Windows или Android, вы не сможете его открыть обычным способом. Это формат текстового редактора Apple.</p><h2>Решение:</h2><p>Наш сервис работает как онлайн-просмотрщик. Загрузите файл, и мы отобразим его содержимое прямо в браузере.</p>` 
+                    },
+                    pages_conv: { 
+                        t: "Зачем конвертировать в PDF?", 
+                        d: `<p>PDF — универсальный формат. Сконвертировав Pages в PDF, вы сможете отправить документ коллегам, у которых нет Mac, и быть уверенными, что он откроется корректно.</p><h2>Особенности:</h2><ul><li>Сохранение картинок</li><li>Точные шрифты</li><li>100% бесплатно</li></ul>` 
+                    },
+                    dat: { t: "Что внутри DAT файла?", d: `<p>DAT — это не конкретный формат, а просто "данные". Это может быть видео VCD, сохранение игры или кэш браузера. Мы анализируем "цифровую подпись" файла, чтобы понять, чем его открыть.</p>` },
+                    winmail: { t: "Странное вложение Outlook", d: `<p>Формат TNEF (winmail.dat) используется Outlook, если письмо отправлено в Rich Text. Другие почтовые программы его не понимают. Мы "вытаскиваем" из него нормальные файлы.</p>` },
+                    bin: { t: "Бинарная структура", d: `<p>Инструмент для разработчиков. Позволяет увидеть "сырые" байты файла и попытаться найти в них знакомые заголовки (JPEG, ZIP, PDF).</p>` }
+                },
+                sec: {
+                    server: { t: "Обработка на сервере", d: "Файл .pages конвертируется на защищенном сервере и удаляется сразу после генерации PDF." },
+                    local: { t: "Локальная обработка", d: "Файл обрабатывается JavaScript прямо в вашем браузере. Данные не покидают устройство." }
+                }
+            },
+            en: {
+                nav: { pages_view: "View .Pages", pages_conv: "Convert Pages", dat: "Open .DAT", winmail: "Extract Winmail", bin: "View .BIN" },
+                hero: {
+                    pages_view: { t: "View .Pages Files Online", d: "Open Apple Pages documents on Windows, Android, and Linux instantly." },
+                    pages_conv: { t: "Convert Pages to PDF", d: "Transform your Apple documents into universal PDF format." },
+                    dat: { t: "Open .DAT Files", d: "Extract contents from unknown data files securely in your browser." },
+                    winmail: { t: "Winmail.dat Extractor", d: "Fix Outlook attachments. Recover files from winmail.dat." },
+                    bin: { t: "Binary File Viewer", d: "Analyze raw binary data and headers." }
+                },
+                drop: { t: "Drag & Drop File", b: "Select File" },
+                ui: { success: "Success", reset: "Start Over", dl: "Download", load: "Processing..." },
+                info: {
+                    pages_view: { t: "How to open Pages on Windows?", d: `<p>Windows does not support .pages files natively. Use our tool to view the document content without buying a Mac.</p>` },
+                    pages_conv: { t: "Why convert to PDF?", d: `<p>PDF is the standard for sharing documents. Converting ensures your file looks the same on every device.</p>` },
+                    dat: { t: "Generic Data Files", d: `<p>We analyze the file signature to determine the true format of the .dat file.</p>` },
+                    winmail: { t: "Outlook TNEF", d: `<p>Decode the proprietary Outlook format to access your attachments.</p>` },
+                    bin: { t: "Raw Data", d: `<p>Inspect binary headers and extract embedded assets.</p>` }
+                },
+                sec: {
+                    server: { t: "Server Processing", d: "File converted on secure server and deleted immediately." },
+                    local: { t: "Local Processing", d: "Processed in browser via WebAssembly. 100% Private." }
+                }
+            },
+            es: {
+                nav: { pages_view: "Ver .Pages", pages_conv: "Convertir Pages", dat: "Abrir .DAT", winmail: "Extraer Winmail", bin: "Ver .BIN" },
+                hero: {
+                    pages_view: { t: "Ver archivos .Pages Online", d: "Abre documentos de Apple Pages en Windows y Android." },
+                    pages_conv: { t: "Convertir Pages a PDF", d: "Convierte tus documentos a formato PDF universal." },
+                    dat: { t: "Abrir archivos .DAT", d: "Extrae contenido de archivos desconocidos." },
+                    winmail: { t: "Abrir Winmail.dat", d: "Recupera adjuntos de Outlook." },
+                    bin: { t: "Visor .BIN", d: "Analiza datos binarios." }
+                },
+                drop: { t: "Arrastra el archivo", b: "Seleccionar" },
+                ui: { success: "Listo", reset: "Reiniciar", dl: "Descargar", load: "Procesando..." },
+                info: {
+                    pages_view: { t: "Abrir Pages en Windows", d: `<p>Windows no soporta archivos .pages. Usa nuestra herramienta para ver el contenido.</p>` },
+                    pages_conv: { t: "Pasar a PDF", d: `<p>El formato PDF asegura compatibilidad total.</p>` },
+                    dat: { t: "Archivos DAT", d: `<p>Analizamos la firma del archivo.</p>` },
+                    winmail: { t: "Problema Outlook", d: `<p>Decodificamos el formato TNEF.</p>` },
+                    bin: { t: "Datos Binarios", d: `<p>Inspecciona cabeceras hexadecimales.</p>` }
+                },
+                sec: { server: { t: "Servidor Seguro", d: "Se elimina tras la conversión." }, local: { t: "Procesamiento Local", d: "100% Privado en tu navegador." } }
+            },
+            pt: {
+                nav: { pages_view: "Ver .Pages", pages_conv: "Converter Pages", dat: "Abrir .DAT", winmail: "Extrair Winmail", bin: "Ver .BIN" },
+                hero: {
+                    pages_view: { t: "Ver arquivos .Pages", d: "Abra documentos Apple no Windows ou Android." },
+                    pages_conv: { t: "Converter Pages em PDF", d: "Transforme documentos em PDF." },
+                    dat: { t: "Abrir .DAT", d: "Extraia conteúdo de arquivos desconhecidos." },
+                    winmail: { t: "Extrator Winmail.dat", d: "Corrija anexos do Outlook." },
+                    bin: { t: "Visualizador .BIN", d: "Análise binária." }
+                },
+                drop: { t: "Arraste o arquivo", b: "Selecionar" },
+                ui: { success: "Sucesso", reset: "Reiniciar", dl: "Baixar", load: "Processando..." },
+                info: {
+                    pages_view: { t: "Pages no Windows", d: `<p>Visualize arquivos .pages sem um Mac.</p>` },
+                    pages_conv: { t: "Para PDF", d: `<p>Garanta compatibilidade enviando como PDF.</p>` },
+                    dat: { t: "Arquivo DAT", d: `<p>Analisamos a estrutura interna.</p>` },
+                    winmail: { t: "Anexos Outlook", d: `<p>Recuperamos seus arquivos originais.</p>` },
+                    bin: { t: "Binário", d: `<p>Veja o código bruto.</p>` }
+                },
+                sec: { server: { t: "Servidor Seguro", d: "Deletado após o download." }, local: { t: "Processamento Local", d: "Seus dados não saem do navegador." } }
+            }
+        };
+
+        // --- INIT ---
+        const params = new URLSearchParams(window.location.search);
+        let curTool = params.get('tool') || 'pages_view';
+        let curLang = params.get('lang') || 'en';
+
+        // Валидация
+        if(!['pages_view','pages_conv','dat','winmail','bin'].includes(curTool)) curTool = 'pages_view';
+        if(!DICT[curLang]) curLang = 'en';
+
+        document.getElementById('langSelect').value = curLang;
+        updateUI();
+
+        // --- LOGIC ---
+        function switchTool(tool) {
+            const url = new URL(window.location);
+            url.searchParams.set('tool', tool);
+            window.history.pushState({}, '', url);
+            curTool = tool;
+            updateUI();
+        }
+
+        function changeLanguage(lang) {
+            const url = new URL(window.location);
+            url.searchParams.set('lang', lang);
+            window.history.pushState({}, '', url);
+            curLang = lang;
+            updateUI();
+        }
+
+        function updateUI() {
+            const T = DICT[curLang] || DICT['en'];
+            
+            // 1. Update Tabs Labels
+            Object.keys(T.nav).forEach(key => {
+                const btn = document.getElementById(`tab-${key}`);
+                if(btn) {
+                    btn.textContent = T.nav[key];
+                    btn.classList.remove('active');
+                }
+            });
+            document.getElementById(`tab-${curTool}`).classList.add('active');
+
+            // 2. Hero & Content
+            const heroData = T.hero[curTool];
+            const infoData = T.info[curTool];
+            
+            document.getElementById('heroTitle').textContent = heroData.t;
+            document.getElementById('heroDesc').textContent = heroData.d;
+            document.getElementById('dropTitle').textContent = T.drop.t;
+            document.getElementById('btnBrowse').textContent = T.drop.b;
+            document.getElementById('resLabel').textContent = T.ui.success;
+            document.getElementById('btnReset').textContent = T.ui.reset;
+            document.getElementById('loadingText').textContent = T.ui.load;
+
+            document.getElementById('infoTitle').textContent = infoData.t;
+            document.getElementById('infoText').innerHTML = infoData.d;
+
+            // 3. Security Text
+            const secTitle = document.getElementById('secTitle');
+            const secText = document.getElementById('secText');
+            if (curTool.includes('pages')) {
+                secTitle.textContent = T.sec.server.t;
+                secText.textContent = T.sec.server.d;
+            } else {
+                secTitle.textContent = T.sec.local.t;
+                secText.textContent = T.sec.local.d;
+            }
+
+            // 4. SEO Tags
+            document.title = heroData.t + " - FileMaster";
+            document.querySelector('meta[name="description"]').setAttribute("content", heroData.d);
+
+            resetView();
+        }
+
+        function resetView() {
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('dropZone').classList.remove('hidden');
+            document.getElementById('pdfBlock').classList.add('hidden');
+            document.getElementById('hexBlock').classList.add('hidden');
+            document.getElementById('fileGrid').innerHTML = '';
+        }
+
+        // --- FILE HANDLING ---
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        dropZone.onclick = () => fileInput.click();
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('active'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('active'));
+        dropZone.addEventListener('drop', e => { e.preventDefault(); processFile(e.dataTransfer.files[0]); });
+        fileInput.onchange = e => processFile(e.target.files[0]);
+
+        async function processFile(file) {
+            if(!file) return;
+            document.getElementById('idleState').classList.add('hidden');
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('resFilename').textContent = file.name;
+
+            try {
+                // Auto-route for Pages
+                if (file.name.toLowerCase().endsWith('.pages')) {
+                    if(!curTool.includes('pages')) {
+                        switchTool('pages_view'); // Default to view if dragged on wrong tab
+                    }
+                    await handlePages(file);
+                } else {
+                    await handleLocal(file);
+                }
+                document.getElementById('dropZone').classList.add('hidden');
+                document.getElementById('results').classList.remove('hidden');
+            } catch(e) {
+                alert(e.message);
+                location.reload();
+            } finally {
+                document.getElementById('idleState').classList.remove('hidden');
+                document.getElementById('loadingState').classList.add('hidden');
+            }
+        }
+
+        async function handlePages(file) {
+            const fd = new FormData();
+            fd.append('file', file);
+            const res = await fetch('/convert-pages', { method: 'POST', body: fd });
+            if(!res.ok) throw new Error("Conversion failed");
+            const data = await res.json();
+            
+            const pdfBlock = document.getElementById('pdfBlock');
+            pdfBlock.classList.remove('hidden');
+            document.getElementById('pdfFrame').src = data.url;
+            
+            const btn = document.getElementById('btnDownloadPdf');
+            btn.href = data.url;
+            btn.download = data.name;
+            btn.textContent = (DICT[curLang] || DICT['en']).ui.dl + " PDF";
+
+            // If we are in "Converter" mode, scroll to download button
+            if(curTool === 'pages_conv') {
+                btn.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        async function handleLocal(file) {
+            const buf = await file.arrayBuffer();
+            const u8 = new Uint8Array(buf);
+            const hex = Array.from(u8.slice(0, 8)).map(b=>b.toString(16).padStart(2,'0')).join('');
+
+            // Show Hex for BIN/DAT
+            if(curTool === 'bin' || curTool === 'dat') {
+                const hexStr = Array.from(u8.slice(0, 64)).map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join(' ');
+                document.getElementById('hexBlock').classList.remove('hidden');
+                document.getElementById('hexView').textContent = hexStr + "...";
+            }
+
+            let found = false;
+            // Detect ZIP
+            if(hex.startsWith('504b0304')) {
+                const zip = new JSZip();
+                const content = await zip.loadAsync(buf);
+                for(let [n, f] of Object.entries(content.files)) {
+                    if(!f.dir && !n.includes("__MACOSX")) {
+                        addCard(n, await f.async('arraybuffer'), 'Archive', '📁');
+                        found = true;
+                    }
+                }
+            } 
+            // Detect TNEF
+            else if(hex.startsWith('789f3e22')) {
+                parseTNEF(buf);
+                found = true;
+            } 
+            // Generic Sigs
+            else {
+                const SIGS = [{h:'FFD8FF',e:'jpg',i:'🖼️'}, {h:'89504E47',e:'png',i:'🖼️'}, {h:'25504446',e:'pdf',i:'📄'}, {h:'494433',e:'mp3',i:'🎵'}];
+                const fh = hex.toUpperCase();
+                const s = SIGS.find(x => fh.startsWith(x.h));
+                if(s) { addCard(`file.${s.e}`, buf, 'File', s.i); found = true; }
+                else if(isText(u8)) { addCard(file.name+'.txt', buf, 'Text', '📄'); found = true; }
+            }
+            if(!found) addCard(file.name, buf, 'Binary', '📦');
+        }
+
+        function parseTNEF(buf) {
+            const view = new DataView(buf);
+            let offset = 6, count = 0, name = null;
+            const dec = new TextDecoder("utf-8");
+            while(offset < buf.byteLength) {
+                try {
+                    const id = view.getUint32(offset+1, true);
+                    const len = view.getUint32(offset+5, true);
+                    offset += 9;
+                    const chunk = buf.slice(offset, offset+len);
+                    if(id === 0x8010) name = dec.decode(chunk).replace(/\0/g, '');
+                    else if(id === 0x800F) {
+                        count++;
+                        addCard(name || `att_${count}.bin`, chunk, 'Outlook', '📧');
+                        name = null;
+                    }
+                    offset += len + 2;
+                } catch(e) { break; }
+            }
+        }
+
+        function isText(arr) {
+            let n=0;
+            for(let i=0; i<Math.min(arr.length,100); i++) if(arr[i]===0) n++;
+            return n===0;
+        }
+
+        function addCard(name, buf, type, icon) {
+            const blob = new Blob([buf]);
+            const url = URL.createObjectURL(blob);
+            const kb = (buf.byteLength/1024).toFixed(1) + ' KB';
+            const dlTxt = (DICT[curLang] || DICT['en']).ui.dl;
+
+            const div = document.createElement('div');
+            div.className = "bg-white p-4 rounded-xl border border-slate-200 flex items-center justify-between shadow-sm";
+            div.innerHTML = `
+                <div class="flex items-center space-x-3 overflow-hidden">
+                    <div class="text-2xl">${icon}</div>
+                    <div class="overflow-hidden">
+                        <div class="font-bold text-slate-800 text-sm truncate" title="${name}">${name}</div>
+                        <div class="text-[10px] uppercase text-slate-400 font-bold">${kb}</div>
+                    </div>
+                </div>
+                <a href="${url}" download="${name}" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-200">${dlTxt}</a>
+            `;
+            document.getElementById('fileGrid').appendChild(div);
+        }
+    </script>
+</body>
+</html>
