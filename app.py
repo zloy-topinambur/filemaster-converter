@@ -7,15 +7,34 @@ app = FastAPI()
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-UPLOAD_DIR = "temp_storage"
+# 1. Определяем директорию, где лежит этот скрипт (для стабильной работы на Linux/Render)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Папка для загрузок
+UPLOAD_DIR = os.path.join(BASE_DIR, "temp_storage")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-# ПУТЬ К LIBREOFFICE (Проверьте путь!)
-LIBREOFFICE_PATH = r"C:\Program Files\LibreOffice\program\soffice.exe"
+# ПУТЬ К LIBREOFFICE (Команда для Linux/Docker)
+LIBREOFFICE_PATH = "soffice"
+
+# --- МАРШРУТЫ ---
 
 @app.get("/")
 async def read_index():
-    return FileResponse('index.html')
+    # Отдаем главную страницу
+    file_path = os.path.join(BASE_DIR, 'index.html')
+    if not os.path.exists(file_path):
+        return JSONResponse(status_code=500, content={"message": "Error: index.html not found"})
+    return FileResponse(file_path)
+
+# !!! ВОТ СЮДА ДОБАВЛЯЕМ SITEMAP !!!
+@app.get("/sitemap.xml")
+async def sitemap():
+    # Отдаем карту сайта для Google
+    file_path = os.path.join(BASE_DIR, 'sitemap.xml')
+    if not os.path.exists(file_path):
+        return JSONResponse(status_code=404, content={"message": "Sitemap not found"})
+    return FileResponse(file_path, media_type="application/xml")
 
 @app.post("/convert-pages")
 async def convert_pages(file: UploadFile = File(...)):
@@ -29,8 +48,22 @@ async def convert_pages(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)
 
     try:
-        subprocess.run([LIBREOFFICE_PATH, '--headless', '--convert-to', 'pdf', '--outdir', UPLOAD_DIR, input_path], check=True)
+        # Конвертация
+        subprocess.run([
+            LIBREOFFICE_PATH, 
+            '--headless', 
+            '--convert-to', 'pdf', 
+            '--outdir', UPLOAD_DIR, 
+            input_path
+        ], check=True)
+        
         pdf_name = f"{file_id}_{file.filename.rsplit('.', 1)[0]}.pdf"
+        
+        # Проверка результата
+        final_pdf_path = os.path.join(UPLOAD_DIR, pdf_name)
+        if not os.path.exists(final_pdf_path):
+             raise Exception("PDF conversion failed")
+
         return {"status": "success", "url": f"/download/{pdf_name}", "name": file.filename.rsplit('.', 1)[0] + ".pdf"}
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": str(e)})
