@@ -356,15 +356,34 @@
             }
         };
 
-        // --- STATE & INIT ---
+       // --- STATE & INIT ---
         const params = new URLSearchParams(window.location.search);
+        
+        // 1. Получаем язык из URL
+        const urlLang = params.get('lang');
+        
+        // 2. Получаем язык браузера
         const browserLang = (navigator.language || navigator.userLanguage).split('-')[0];
-        let curLang = DICT[browserLang] ? browserLang : 'en';
+
+        // ЛОГИКА ПРИОРИТЕТОВ:
+        let curLang = 'en'; // По умолчанию
+
+        if (urlLang && DICT[urlLang]) {
+            // Если в ссылке указан язык и он у нас есть в словаре — используем его
+            curLang = urlLang;
+        } else if (DICT[browserLang]) {
+            // Иначе, если язык браузера поддерживается — используем его
+            curLang = browserLang;
+        }
+        // Иначе остается 'en'
+
         let curTool = params.get('tool') || 'pages_view';
 
         if(!['pages_view','pages_conv','dat','winmail','bin'].includes(curTool)) curTool = 'pages_view';
         
+        // Устанавливаем селект в нужное положение
         document.getElementById('langSelect').value = curLang;
+        
         updateUI();
 
         // --- FUNCTIONS ---
@@ -651,3 +670,4 @@
     </script>
 </body>
 </html>
+
