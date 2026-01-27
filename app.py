@@ -36,6 +36,16 @@ async def sitemap():
         return JSONResponse(status_code=404, content={"message": "Sitemap not found"})
     return FileResponse(file_path, media_type="application/xml")
 
+# ... где-то после функции sitemap ...
+
+@app.get("/robots.txt")
+async def robots():
+    file_path = os.path.join(BASE_DIR, 'robots.txt')
+    if not os.path.exists(file_path):
+        return JSONResponse(status_code=404, content={"message": "robots.txt not found"})
+    # Важно: media_type должен быть text/plain
+    return FileResponse(file_path, media_type="text/plain")
+
 @app.post("/convert-pages")
 async def convert_pages(file: UploadFile = File(...)):
     if not file.filename.lower().endswith('.pages'):
@@ -78,3 +88,4 @@ async def download_file(file_name: str):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
