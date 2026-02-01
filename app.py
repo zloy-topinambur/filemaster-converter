@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Response
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -12,15 +12,17 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_DIR = os.path.join(BASE_DIR, "temp_storage")
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 
+# Создаем папки, если нет
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(STATIC_DIR, exist_ok=True)
 
-# Подключаем шаблоны
+# Подключаем шаблоны (Jinja2)
 templates = Jinja2Templates(directory=BASE_DIR)
 
+# CORS (разрешаем запросы отовсюду)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-# Путь к LibreOffice (Linux/Docker)
+# Путь к LibreOffice (для Linux/Docker)
 LIBREOFFICE_PATH = "soffice"
 
 # --- URL MAPPING (Красивые ссылки для SEO) ---
@@ -32,19 +34,13 @@ URL_MAP = {
     "winmail-dat-opener": "winmail",
     "view-bin-file": "bin"
 }
-# Обратный маппинг
+# Обратный маппинг (ID -> URL)
 ID_TO_URL = {v: k for k, v in URL_MAP.items()}
 
 # --- SEO CONTENT DATABASE (4 ЯЗЫКА) ---
 CONTENT = {
     "en": {
-        "nav": {
-            "pages_view": "View .Pages",
-            "pages_conv": "Convert Pages",
-            "dat": "Open .DAT",
-            "winmail": "Fix Winmail",
-            "bin": "View .BIN"
-        },
+        "nav": {"pages_view": "View .Pages", "pages_conv": "Convert Pages", "dat": "Open .DAT", "winmail": "Fix Winmail", "bin": "View .BIN"},
         "pages_view": {
             "title": "Open .Pages Files Online on Windows & Android (Free Viewer)",
             "desc": "How to open .pages files without a Mac? Use our free online viewer. Read Apple Pages documents on Windows 10, 11, and Android instantly.",
@@ -77,13 +73,7 @@ CONTENT = {
         }
     },
     "ru": {
-        "nav": {
-            "pages_view": "Смотреть Pages",
-            "pages_conv": "Pages в PDF",
-            "dat": "Открыть .DAT",
-            "winmail": "Winmail.dat",
-            "bin": "Открыть .BIN"
-        },
+        "nav": {"pages_view": "Смотреть Pages", "pages_conv": "Pages в PDF", "dat": "Открыть .DAT", "winmail": "Winmail.dat", "bin": "Открыть .BIN"},
         "pages_view": {
             "title": "Открыть файл .Pages онлайн на Windows и Android бесплатно",
             "desc": "Чем открыть файл .pages на компьютере? Онлайн просмотрщик документов Apple Pages для Windows. Без установки программ и регистрации.",
@@ -116,13 +106,7 @@ CONTENT = {
         }
     },
     "es": {
-        "nav": {
-            "pages_view": "Ver .Pages",
-            "pages_conv": "Convertir Pages",
-            "dat": "Abrir .DAT",
-            "winmail": "Abrir Winmail",
-            "bin": "Ver .BIN"
-        },
+        "nav": {"pages_view": "Ver .Pages", "pages_conv": "Convertir Pages", "dat": "Abrir .DAT", "winmail": "Abrir Winmail", "bin": "Ver .BIN"},
         "pages_view": {
             "title": "Abrir archivos .Pages Online en Windows y Android Gratis",
             "desc": "¿Cómo abrir archivos .pages en PC? Visor online gratuito para documentos de Apple. Compatible con Windows 10 y Android.",
@@ -155,13 +139,7 @@ CONTENT = {
         }
     },
     "pt": {
-        "nav": {
-            "pages_view": "Ver .Pages",
-            "pages_conv": "Converter Pages",
-            "dat": "Abrir .DAT",
-            "winmail": "Winmail.dat",
-            "bin": "Ver .BIN"
-        },
+        "nav": {"pages_view": "Ver .Pages", "pages_conv": "Converter Pages", "dat": "Abrir .DAT", "winmail": "Winmail.dat", "bin": "Ver .BIN"},
         "pages_view": {
             "title": "Abrir arquivo .Pages Online no Windows e Android",
             "desc": "Como abrir arquivo .pages no PC? Visualizador online gratuito de documentos Apple Pages. Sem instalação.",
@@ -195,25 +173,26 @@ CONTENT = {
     }
 }
 
-# --- ЛОГИКА РЕНДЕРИНГА ---
+# --- ЛОГИКА РЕНДЕРИНГА (SEO) ---
 async def render(request: Request, lang: str, tool_slug: str):
-    # Fallbacks
+    # Fallbacks (если язык не найден - включаем EN)
     if lang not in CONTENT: lang = "en"
+    
+    # Определяем ID инструмента по URL
     tool_id = URL_MAP.get(tool_slug, "pages_view")
     
-    # Get Data
+    # Получаем данные из словаря
     data = CONTENT[lang].get(tool_id, CONTENT["en"][tool_id])
     nav_labels = CONTENT[lang]["nav"]
     
-    # Hreflangs & Links Generation
+    # Генерируем ссылки hreflang и переключатель языков
     base = "https://filemaster.online"
-    # Генерируем ссылки на текущий инструмент для всех языков
     links = {}
     for l in ["en", "ru", "es", "pt"]:
         prefix = f"/{l}" if l != "en" else ""
         links[l] = f"{prefix}/{tool_slug}"
 
-    # Генерируем навигацию для текущего языка
+    # Генерируем ссылки навигации (табы) для текущего языка
     nav_urls = {}
     lang_prefix = f"/{lang}" if lang != "en" else ""
     for tid, t_slug in ID_TO_URL.items():
@@ -233,54 +212,86 @@ async def render(request: Request, lang: str, tool_slug: str):
         "base_url": base
     })
 
-# --- МАРШРУТЫ ---
+# --- СЛУЖЕБНЫЕ МАРШРУТЫ (SEO) ---
+
+@app.get("/robots.txt")
+async def robots():
+    content = """User-agent: *
+Allow: /
+Sitemap: https://filemaster.online/sitemap.xml
+"""
+    return Response(content=content, media_type="text/plain")
 
 @app.get("/sitemap.xml")
 async def sitemap():
-    base = "https://filemaster.online"
+    base_url = "https://filemaster.online"
     urls = []
-    # Generate all combinations
-    for lang in ["en", "ru", "es", "pt"]:
-        prefix = f"/{lang}" if lang != "en" else ""
+    
+    # 1. Главная страница (EN)
+    urls.append(f"<url><loc>{base_url}/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>")
+    
+    # 2. Инструменты (EN)
+    for slug in URL_MAP.keys():
+        urls.append(f"<url><loc>{base_url}/{slug}</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>")
+    
+    # 3. Языковые версии (RU, ES, PT)
+    for lang in ["ru", "es", "pt"]:
+        # Корень языка
+        urls.append(f"<url><loc>{base_url}/{lang}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>")
+        # Инструменты языка
         for slug in URL_MAP.keys():
-            urls.append(f"<url><loc>{base}{prefix}/{slug}</loc><changefreq>weekly</changefreq></url>")
-            
-    xml = f"""<?xml version="1.0" encoding="UTF-8"?>
-    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-        {''.join(urls)}
-    </urlset>"""
-    return JSONResponse(content=xml, media_type="application/xml")
+            urls.append(f"<url><loc>{base_url}/{lang}/{slug}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>")
+
+    xml_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{''.join(urls)}
+</urlset>"""
+    return Response(content=xml_content, media_type="application/xml")
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     p = os.path.join(STATIC_DIR, "favicon.ico")
     if os.path.exists(p): return FileResponse(p)
-    return JSONResponse(status_code=204)
+    return Response(status_code=204)
 
-# 1. Routes EN (Default)
+@app.get("/privacy-policy")
+async def privacy(request: Request):
+    # Простая заглушка для Google Play
+    html = """
+    <html><body><h1>Privacy Policy</h1><p>We do not store your files. All uploads are deleted within 1 hour.</p></body></html>
+    """
+    return Response(content=html, media_type="text/html")
+
+# --- ОСНОВНЫЕ МАРШРУТЫ ---
+
+# 1. Корень (EN)
 @app.get("/")
 async def root(request: Request):
     return await render(request, "en", "pages-viewer")
 
+# 2. Инструмент (EN)
 @app.get("/{slug}")
 async def tool_en(request: Request, slug: str):
     if slug in URL_MAP: return await render(request, "en", slug)
     return JSONResponse(status_code=404, content={"message": "Not Found"})
 
-# 2. Routes Langs
+# 3. Инструмент (Lang)
 @app.get("/{lang}/{slug}")
 async def tool_lang(request: Request, lang: str, slug: str):
     if lang in CONTENT and slug in URL_MAP:
         return await render(request, lang, slug)
     return JSONResponse(status_code=404, content={"message": "Not Found"})
 
+# 4. Корень (Lang)
 @app.get("/{lang}")
 async def root_lang(request: Request, lang: str):
     if lang in CONTENT:
         return await render(request, lang, "pages-viewer")
     return JSONResponse(status_code=404, content={"message": "Not Found"})
 
-# --- API ENDPOINTS (Оставлены как есть) ---
+# --- API ENDPOINTS ---
+
+# ВАЖНО: Убран async для многопоточности!
 @app.post("/convert-pages")
 def convert_pages(file: UploadFile = File(...)):
     if not file.filename.lower().endswith('.pages'):
@@ -293,8 +304,15 @@ def convert_pages(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)
 
     try:
+        # Конвертация
         subprocess.run([LIBREOFFICE_PATH, '--headless', '--convert-to', 'pdf', '--outdir', UPLOAD_DIR, input_path], check=True)
         pdf_name = f"{file_id}_{file.filename.rsplit('.', 1)[0]}.pdf"
+        
+        # Проверка, создался ли PDF
+        final_pdf_path = os.path.join(UPLOAD_DIR, pdf_name)
+        if not os.path.exists(final_pdf_path):
+             raise Exception("Conversion returned no error, but PDF missing.")
+
         return {"status": "success", "url": f"/download/{pdf_name}", "name": file.filename.rsplit('.', 1)[0] + ".pdf"}
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": str(e)})
