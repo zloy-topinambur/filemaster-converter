@@ -2,162 +2,132 @@
 <html lang="{{ lang }}">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- DYNAMIC SEO -->
     <title>{{ title }}</title>
     <meta name="description" content="{{ desc }}">
     <link rel="canonical" href="{{ base_url }}{{ lang_links[lang] }}">
 
-    <!-- HREFLANG TAGS (CRITICAL FOR SEO) -->
+    <!-- SEO: Android & Mobile Optimization -->
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- HREFLANG -->
     <link rel="alternate" hreflang="en" href="{{ base_url }}{{ lang_links['en'] }}" />
     <link rel="alternate" hreflang="ru" href="{{ base_url }}{{ lang_links['ru'] }}" />
     <link rel="alternate" hreflang="es" href="{{ base_url }}{{ lang_links['es'] }}" />
     <link rel="alternate" hreflang="pt" href="{{ base_url }}{{ lang_links['pt'] }}" />
     <link rel="alternate" hreflang="x-default" href="{{ base_url }}{{ lang_links['en'] }}" />
 
-    <link rel="icon" href="/favicon.ico">
-    
-    <!-- Styles -->
+    <!-- Google Search App Result Schema (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "FileMaster Online",
+      "operatingSystem": "Android, iOS, Windows, macOS",
+      "applicationCategory": "File-Utility",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .tab-btn { transition: all 0.2s; border-bottom: 2px solid transparent; opacity: 0.6; }
-        .tab-btn:hover { opacity: 1; background: #f8fafc; }
-        .tab-btn.active { border-color: #2563eb; color: #2563eb; opacity: 1; background: #eff6ff; }
-        .drop-zone.active { border-color: #2563eb; background: #eff6ff; transform: scale(1.01); }
-        .prose h2 { font-size: 1.5rem; font-weight: 800; color: #1e293b; margin-top: 2rem; margin-bottom: 1rem; }
-        .prose p { margin-bottom: 1rem; color: #475569; line-height: 1.6; }
-        .prose ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; color: #475569; }
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .tab-btn.active { border-bottom: 3px solid #2563eb; color: #2563eb; font-weight: 800; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .prose h2 { font-size: 1.4rem; font-weight: 900; margin: 1.5rem 0 1rem; color: #0f172a; }
+        .prose p { margin-bottom: 1rem; color: #475569; }
     </style>
-
-    <!-- Yandex.Metrika (Вставь свой код сюда) -->
 </head>
-<body class="bg-slate-50 text-slate-900 flex flex-col min-h-screen">
+<body class="bg-slate-50 flex flex-col min-h-screen">
 
     <!-- Header -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header class="bg-white border-b sticky top-0 z-50 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4">
             <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
                 <a href="/{{ lang if lang != 'en' else '' }}" class="flex items-center space-x-2">
-                    <div class="bg-slate-900 text-white p-1.5 rounded-lg">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    <div class="bg-blue-600 text-white p-1.5 rounded-lg shadow-md">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                     </div>
-                    <span class="text-xl font-bold tracking-tight">File<span class="text-blue-600">Master</span></span>
+                    <span class="text-xl font-black text-slate-900">FileMaster</span>
                 </a>
-
-                <!-- Language Switcher (SEO Friendly Links) -->
-                <div class="flex space-x-2 text-sm font-bold">
-                    <a href="{{ lang_links['en'] }}" class="{{ 'text-blue-600 bg-blue-50 px-2 rounded' if lang == 'en' else 'text-slate-400 hover:text-slate-600' }}">EN</a>
-                    <a href="{{ lang_links['ru'] }}" class="{{ 'text-blue-600 bg-blue-50 px-2 rounded' if lang == 'ru' else 'text-slate-400 hover:text-slate-600' }}">RU</a>
-                    <a href="{{ lang_links['es'] }}" class="{{ 'text-blue-600 bg-blue-50 px-2 rounded' if lang == 'es' else 'text-slate-400 hover:text-slate-600' }}">ES</a>
-                    <a href="{{ lang_links['pt'] }}" class="{{ 'text-blue-600 bg-blue-50 px-2 rounded' if lang == 'pt' else 'text-slate-400 hover:text-slate-600' }}">PT</a>
+                
+                <div class="flex space-x-3 text-xs font-bold uppercase tracking-widest">
+                    <a href="{{ lang_links['en'] }}" class="{{ 'text-blue-600' if lang == 'en' else 'text-slate-400' }}">EN</a>
+                    <a href="{{ lang_links['ru'] }}" class="{{ 'text-blue-600' if lang == 'ru' else 'text-slate-400' }}">RU</a>
+                    <a href="{{ lang_links['es'] }}" class="{{ 'text-blue-600' if lang == 'es' else 'text-slate-400' }}">ES</a>
+                    <a href="{{ lang_links['pt'] }}" class="{{ 'text-blue-600' if lang == 'pt' else 'text-slate-400' }}">PT</a>
                 </div>
             </div>
-
-            <!-- TABS NAVIGATION (SEO Links) -->
-            <nav class="flex -mb-px overflow-x-auto space-x-2 no-scrollbar pb-1 pt-1">
-                <a href="{{ nav_urls['pages_view'] }}" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700 rounded-t-lg {{ 'active' if current_tool_id == 'pages_view' else '' }}">
-                    {{ nav_labels['pages_view'] }}
+            
+            <nav class="flex overflow-x-auto no-scrollbar space-x-1 border-t">
+                {% for tid, tname in nav_labels.items() %}
+                <a href="{{ nav_urls[tid] }}" class="tab-btn px-4 py-3 text-xs uppercase font-bold whitespace-nowrap {{ 'active' if current_tool_id == tid else '' }}">
+                    {{ tname }}
                 </a>
-                <a href="{{ nav_urls['pages_conv'] }}" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700 rounded-t-lg {{ 'active' if current_tool_id == 'pages_conv' else '' }}">
-                    {{ nav_labels['pages_conv'] }}
-                </a>
-                <div class="w-px bg-slate-200 my-3 mx-1"></div>
-                <a href="{{ nav_urls['dat'] }}" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700 rounded-t-lg {{ 'active' if current_tool_id == 'dat' else '' }}">
-                    {{ nav_labels['dat'] }}
-                </a>
-                <a href="{{ nav_urls['winmail'] }}" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700 rounded-t-lg {{ 'active' if current_tool_id == 'winmail' else '' }}">
-                    {{ nav_labels['winmail'] }}
-                </a>
-                <a href="{{ nav_urls['bin'] }}" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700 rounded-t-lg {{ 'active' if current_tool_id == 'bin' else '' }}">
-                    {{ nav_labels['bin'] }}
-                </a>
+                {% endfor %}
             </nav>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="flex-grow max-w-4xl mx-auto px-4 py-12 w-full">
-        
-        <!-- Hero (Dynamic) -->
-        <div class="text-center mb-10">
-            <h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight">{{ h1 }}</h1>
-            <p class="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">{{ desc }}</p>
+    <main class="flex-grow max-w-4xl mx-auto px-4 py-8 w-full">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight leading-tight">{{ h1 }}</h1>
+            <p class="text-slate-500">{{ desc }}</p>
         </div>
 
-        <!-- Drop Zone -->
-        <div id="dropZone" class="bg-white border-4 border-dashed border-slate-200 rounded-[2.5rem] p-10 md:p-20 text-center cursor-pointer transition-all hover:border-blue-400 group relative mb-16 shadow-sm">
+        <!-- Upload -->
+        <div id="dropZone" class="bg-white border-2 border-dashed border-slate-300 rounded-3xl p-8 md:p-16 text-center shadow-inner cursor-pointer hover:border-blue-500 transition-all relative">
             <input type="file" id="fileInput" class="hidden">
-            
             <div id="idleState">
-                <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                <div class="bg-blue-50 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 text-blue-600">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                 </div>
-                <h2 class="text-2xl font-bold text-slate-800 mb-3">Upload File</h2>
-                <button class="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-blue-600 transition-colors uppercase tracking-wider">Select File</button>
+                <p class="font-black text-slate-800 uppercase text-sm tracking-widest">Click to upload</p>
             </div>
-
-            <div id="loadingState" class="hidden absolute inset-0 bg-white/90 flex flex-col items-center justify-center z-10 rounded-[2.5rem]">
-                <div class="animate-spin w-14 h-14 border-4 border-slate-900 border-t-transparent rounded-full mb-4"></div>
-                <p class="font-bold text-slate-500 uppercase text-xs tracking-widest animate-pulse">Processing...</p>
+            <div id="loadingState" class="hidden py-4">
+                <div class="animate-spin w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-2"></div>
+                <p class="text-xs font-bold text-blue-600 uppercase">Processing...</p>
             </div>
         </div>
 
-        <!-- Result Section -->
-        <div id="results" class="hidden space-y-8">
-            <div class="flex items-center justify-between border-b pb-4">
-                <h3 class="text-xs font-bold text-green-600 uppercase tracking-widest">Done</h3>
-                <button onclick="location.reload()" class="text-slate-400 hover:text-red-500 text-sm font-bold uppercase">Reset</button>
-            </div>
-
-            <!-- PDF Viewer -->
+        <!-- Results -->
+        <div id="results" class="hidden mt-8 space-y-4">
             <div id="pdfBlock" class="hidden">
-                <iframe id="pdfFrame" class="w-full h-[600px] bg-white rounded-xl border mb-4" src=""></iframe>
-                <div class="text-center">
-                    <a id="btnDownloadPdf" href="#" class="inline-block bg-blue-600 text-white px-12 py-4 rounded-xl font-bold shadow-xl hover:bg-blue-700">Download PDF</a>
-                </div>
+                <iframe id="pdfFrame" class="w-full h-96 border rounded-2xl mb-4 bg-white shadow-lg"></iframe>
+                <a id="btnDownloadPdf" href="#" class="block w-full bg-blue-600 text-white text-center py-4 rounded-2xl font-black shadow-xl">DOWNLOAD PDF</a>
             </div>
-
-            <!-- Grid -->
-            <div id="fileGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-
-            <!-- Hex -->
-            <div id="hexBlock" class="hidden bg-slate-900 rounded-3xl p-8 text-white shadow-xl">
-                <div id="hexView" class="mono text-xs text-blue-300 break-all leading-relaxed font-light"></div>
+            <div id="fileGrid" class="grid gap-3"></div>
+            <div id="hexBlock" class="hidden bg-slate-900 p-6 rounded-2xl text-blue-400 font-mono text-xs overflow-x-auto">
+                <pre id="hexView"></pre>
             </div>
+            <button onclick="location.reload()" class="w-full text-slate-400 text-xs font-bold uppercase py-4">Reset / New File</button>
         </div>
 
-        <!-- SEO Text Block (Dynamic) -->
-        <section class="mt-24 border-t border-slate-200 pt-16">
-            <div class="prose prose-slate max-w-none">
-                {{ seo_text | safe }}
-            </div>
+        <section class="mt-16 border-t pt-10 prose prose-slate">
+            {{ seo_text | safe }}
         </section>
-
     </main>
 
-    <footer class="bg-white border-t border-slate-200 mt-auto py-12 text-center text-xs text-slate-400">
-        <p>&copy; 2024 FileMaster Global. <a href="/sitemap.xml" class="hover:underline">Sitemap</a></p>
+    <footer class="py-8 text-center text-[10px] text-slate-400 border-t uppercase tracking-widest font-bold">
+        &copy; 2024 FileMaster Online • <a href="/sitemap.xml" class="text-blue-500">Sitemap</a>
     </footer>
 
     <script>
-        // PASS VARIABLES FROM PYTHON TO JS
         const CUR_TOOL = "{{ current_tool_id }}";
-
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
 
         dropZone.onclick = () => fileInput.click();
-        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('active'); });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('active'));
-        dropZone.addEventListener('drop', e => { e.preventDefault(); processFile(e.dataTransfer.files[0]); });
         fileInput.onchange = e => processFile(e.target.files[0]);
+        dropZone.ondragover = e => { e.preventDefault(); dropZone.classList.add('bg-blue-50'); };
+        dropZone.ondragleave = () => dropZone.classList.remove('bg-blue-50');
+        dropZone.ondrop = e => { e.preventDefault(); processFile(e.dataTransfer.files[0]); };
 
         async function processFile(file) {
             if(!file) return;
@@ -165,112 +135,39 @@
             document.getElementById('loadingState').classList.remove('hidden');
 
             try {
-                // Determine logic based on file type and current tool
-                const isPages = file.name.toLowerCase().endsWith('.pages');
-                
-                // If user uploads .pages, we convert it, unless they specifically want BIN analysis
-                if (isPages && CUR_TOOL !== 'bin') {
-                    await handlePages(file);
+                if (file.name.toLowerCase().endsWith('.pages') && CUR_TOOL !== 'bin') {
+                    const fd = new FormData(); fd.append('file', file);
+                    const res = await fetch('/convert-pages', { method: 'POST', body: fd });
+                    const data = await res.json();
+                    document.getElementById('pdfBlock').classList.remove('hidden');
+                    document.getElementById('pdfFrame').src = data.url;
+                    document.getElementById('btnDownloadPdf').href = data.url;
                 } else {
-                    await handleLocal(file);
+                    const buf = await file.arrayBuffer();
+                    const u8 = new Uint8Array(buf);
+                    
+                    if(CUR_TOOL === 'bin' || CUR_TOOL === 'dat') {
+                        document.getElementById('hexBlock').classList.remove('hidden');
+                        document.getElementById('hexView').textContent = Array.from(u8.slice(0, 128))
+                            .map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+                    }
+                    addCard(file.name, buf, '📄');
                 }
-                
-                document.getElementById('dropZone').classList.add('hidden');
+                dropZone.classList.add('hidden');
                 document.getElementById('results').classList.remove('hidden');
-            } catch(e) {
-                alert(e.message);
-                location.reload();
-            } finally {
-                document.getElementById('loadingState').classList.add('hidden');
-            }
+            } catch (e) { alert("Error processing file"); location.reload(); }
         }
 
-        async function handlePages(file) {
-            const fd = new FormData();
-            fd.append('file', file);
-            const res = await fetch('/convert-pages', { method: 'POST', body: fd });
-            if(!res.ok) throw new Error("Conversion failed");
-            const data = await res.json();
-            
-            document.getElementById('pdfBlock').classList.remove('hidden');
-            document.getElementById('pdfFrame').src = data.url;
-            const btn = document.getElementById('btnDownloadPdf');
-            btn.href = data.url;
-            btn.download = data.name;
-        }
-
-        async function handleLocal(file) {
-            const buf = await file.arrayBuffer();
-            const u8 = new Uint8Array(buf);
-            
-            // Hex View logic
-            if(CUR_TOOL === 'bin' || CUR_TOOL === 'dat') {
-                const hexStr = Array.from(u8.slice(0, 64)).map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join(' ');
-                document.getElementById('hexBlock').classList.remove('hidden');
-                document.getElementById('hexView').textContent = hexStr + "...";
-            }
-
-            const hex = Array.from(u8.slice(0, 4)).map(b=>b.toString(16).padStart(2,'0')).join('');
-            let found = false;
-
-            // Zip Detection (PK..)
-            if(hex.startsWith('504b0304')) {
-                const zip = new JSZip();
-                const content = await zip.loadAsync(buf);
-                for(let [n, f] of Object.entries(content.files)) {
-                    if(!f.dir && !n.includes("__MACOSX")) {
-                        addCard(n, await f.async('arraybuffer'), 'Archive', '📁');
-                        found = true;
-                    }
-                }
-            } 
-            // TNEF Detection (Winmail.dat)
-            else if(hex.startsWith('789f3e22')) {
-                parseTNEF(buf);
-                found = true;
-            }
-            
-            if(!found) {
-                // Simple generic add
-                addCard(file.name, buf, 'File', '📄');
-            }
-        }
-
-        function parseTNEF(buf) {
-            // Simplified TNEF parser (same logic as before)
-            const view = new DataView(buf);
-            let offset = 6;
-            const dec = new TextDecoder("utf-8");
-            try {
-                while(offset < buf.byteLength) {
-                    const id = view.getUint32(offset+1, true);
-                    const len = view.getUint32(offset+5, true);
-                    offset += 9;
-                    if(id === 0x800F) { // att data
-                        const chunk = buf.slice(offset, offset+len);
-                        addCard(`attachment.bin`, chunk, 'Outlook', '📧');
-                    }
-                    offset += len + 2;
-                }
-            } catch(e) {}
-        }
-
-        function addCard(name, buf, type, icon) {
+        function addCard(name, buf, icon) {
             const blob = new Blob([buf]);
             const url = URL.createObjectURL(blob);
-            const kb = (buf.byteLength/1024).toFixed(1) + ' KB';
             const div = document.createElement('div');
-            div.className = "bg-white p-4 rounded-xl border border-slate-200 flex items-center justify-between shadow-sm";
-            div.innerHTML = `
-                <div class="flex items-center space-x-3 overflow-hidden">
-                    <div class="text-2xl">${icon}</div>
-                    <div>
-                        <div class="font-bold text-slate-800 text-sm truncate w-40">${name}</div>
-                        <div class="text-[10px] uppercase text-slate-400 font-bold">${kb}</div>
-                    </div>
-                </div>
-                <a href="${url}" download="${name}" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-200">Download</a>
-            `;
+            div.className = "bg-white p-5 rounded-2xl border shadow-sm flex items-center justify-between";
+            div.innerHTML = `<div class="flex items-center space-x-3 overflow-hidden">
+                <span class="text-2xl">${icon}</span>
+                <div class="font-bold text-sm truncate pr-4">${name}</div>
+            </div>
+            <a href="${url}" download="${name}" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-xs font-black">SAVE</a>`;
             document.getElementById('fileGrid').appendChild(div);
         }
     </script>
