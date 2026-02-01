@@ -1,531 +1,155 @@
 <!DOCTYPE html>
-<html lang="en" prefix="og: https://ogp.me/ns#">
+<html lang="{{ lang }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Yandex.Metrika counter -->
-    <script type="text/javascript">
-        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-        m[i].l=1*new Date();
-        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-        (window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=106463725', 'ym');
+    <!-- DYNAMIC SEO -->
+    <title>{{ title }}</title>
+    <meta name="description" content="{{ desc }}">
+    <link rel="canonical" href="{{ base_url }}{{ lang_links[lang] }}">
 
-        ym(106463725, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
-    </script>
-    <noscript><div><img src="https://mc.yandex.ru/watch/106463725" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-    <!-- /Yandex.Metrika counter -->
+    <!-- HREFLANG TAGS (CRITICAL FOR SEO) -->
+    <link rel="alternate" hreflang="en" href="{{ base_url }}{{ lang_links['en'] }}" />
+    <link rel="alternate" hreflang="ru" href="{{ base_url }}{{ lang_links['ru'] }}" />
+    <link rel="alternate" hreflang="es" href="{{ base_url }}{{ lang_links['es'] }}" />
+    <link rel="alternate" hreflang="pt" href="{{ base_url }}{{ lang_links['pt'] }}" />
+    <link rel="alternate" hreflang="x-default" href="{{ base_url }}{{ lang_links['en'] }}" />
 
-    <!-- SEO Meta Tags (Dynamic) -->
-    <title id="pageTitle">Open .Pages, DAT, BIN Files Online - Free Converter</title>
-    <meta name="description" id="metaDesc" content="Free online tool to open Apple Pages files on Windows. Convert Pages to PDF, extract Winmail.dat and view BIN files instantly. No installation.">
-    <meta name="keywords" content="open pages file windows, pages to pdf, convert pages online, winmail.dat opener, dat file viewer, bin file reader">
-    <meta name="author" content="FileMaster Global">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" id="canonicalLink" href="https://openpages.online/">
-
-    <!-- Open Graph / Social -->
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="FileMaster">
-    <meta property="og:title" id="ogTitle" content="Open Pages & DAT Files Online">
-    <meta property="og:description" id="ogDesc" content="Convert Pages to PDF and view DAT files instantly in your browser.">
-    <meta property="og:image" content="https://openpages.online/cover-image.png"> <!-- Желательно добавить картинку позже -->
+    <link rel="icon" href="/favicon.ico">
     
-    <!-- Structured Data (JSON-LD) -->
-    <script type="application/ld+json" id="schemaScript">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "FileMaster",
-      "url": "https://openpages.online",
-      "applicationCategory": "UtilitiesApplication",
-      "operatingSystem": "Any",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      }
-    }
-    </script>
-
-    <!-- FAVICON -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📂</text></svg>">
-
     <!-- Styles -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
     
     <style>
         body { font-family: 'Inter', sans-serif; }
         .mono { font-family: 'JetBrains Mono', monospace; }
-        .tab-btn { transition: all 0.2s; border-bottom: 2px solid transparent; opacity: 0.7; }
+        .tab-btn { transition: all 0.2s; border-bottom: 2px solid transparent; opacity: 0.6; }
         .tab-btn:hover { opacity: 1; background: #f8fafc; }
         .tab-btn.active { border-color: #2563eb; color: #2563eb; opacity: 1; background: #eff6ff; }
-        .drop-zone.active { border-color: #2563eb; background: #eff6ff; transform: scale(1.005); }
-        .animate-up { animation: slideUp 0.4s ease-out forwards; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        /* SEO Content Styling */
-        .prose h2 { font-size: 1.25rem; font-weight: 800; color: #1e293b; margin-top: 1.5rem; margin-bottom: 0.75rem; }
-        .prose h3 { font-size: 1.1rem; font-weight: 700; color: #334155; margin-top: 1rem; }
-        .prose p { margin-bottom: 1rem; font-size: 1rem; line-height: 1.7; color: #475569; }
-        .prose ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; color: #475569; }
-        .prose li { margin-bottom: 0.5rem; }
-        .prose strong { color: #0f172a; }
-        /* Footer Links */
-        .footer-link { color: #94a3b8; transition: color 0.2s; }
-        .footer-link:hover { color: #2563eb; }
+        .drop-zone.active { border-color: #2563eb; background: #eff6ff; transform: scale(1.01); }
+        .prose h2 { font-size: 1.5rem; font-weight: 800; color: #1e293b; margin-top: 2rem; margin-bottom: 1rem; }
+        .prose p { margin-bottom: 1rem; color: #475569; line-height: 1.6; }
+        .prose ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; color: #475569; }
     </style>
-    <meta name="yandex-verification" content="768be20d9e6a477c" />
+
+    <!-- Yandex.Metrika (Вставь свой код сюда) -->
 </head>
 <body class="bg-slate-50 text-slate-900 flex flex-col min-h-screen">
 
     <!-- Header -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <!-- Logo -->
-                <a href="?" class="flex items-center space-x-2 group">
-                    <div class="bg-slate-900 text-white p-1.5 rounded-lg group-hover:bg-blue-600 transition-colors">
+                <a href="/{{ lang if lang != 'en' else '' }}" class="flex items-center space-x-2">
+                    <div class="bg-slate-900 text-white p-1.5 rounded-lg">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                     </div>
                     <span class="text-xl font-bold tracking-tight">File<span class="text-blue-600">Master</span></span>
                 </a>
 
-                <!-- Language -->
-                <div class="flex items-center">
-                    <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-slate-50 text-sm font-bold text-slate-600 py-1.5 px-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 cursor-pointer hover:bg-slate-100">
-                        <option value="en">🇺🇸 English</option>
-                        <option value="ru">🇷🇺 Русский</option>
-                        <option value="es">🇪🇸 Español</option>
-                        <option value="pt">🇵🇹 Português</option>
-                    </select>
+                <!-- Language Switcher (SEO Friendly Links) -->
+                <div class="flex space-x-2 text-sm font-bold">
+                    <a href="{{ lang_links['en'] }}" class="{{ 'text-blue-600 bg-blue-50 px-2 rounded' if lang == 'en' else 'text-slate-400 hover:text-slate-600' }}">EN</a>
+                    <a href="{{ lang_links['ru'] }}" class="{{ 'text-blue-600 bg-blue-50 px-2 rounded' if lang == 'ru' else 'text-slate-400 hover:text-slate-600' }}">RU</a>
+                    <a href="{{ lang_links['es'] }}" class="{{ 'text-blue-600 bg-blue-50 px-2 rounded' if lang == 'es' else 'text-slate-400 hover:text-slate-600' }}">ES</a>
+                    <a href="{{ lang_links['pt'] }}" class="{{ 'text-blue-600 bg-blue-50 px-2 rounded' if lang == 'pt' else 'text-slate-400 hover:text-slate-600' }}">PT</a>
                 </div>
             </div>
 
-            <!-- TABS -->
+            <!-- TABS NAVIGATION (SEO Links) -->
             <nav class="flex -mb-px overflow-x-auto space-x-2 no-scrollbar pb-1 pt-1">
-                <button onclick="switchTool('pages_view')" id="tab-pages_view" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700 rounded-t-lg"></button>
-                <button onclick="switchTool('pages_conv')" id="tab-pages_conv" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700 rounded-t-lg"></button>
+                <a href="{{ nav_urls['pages_view'] }}" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700 rounded-t-lg {{ 'active' if current_tool_id == 'pages_view' else '' }}">
+                    {{ nav_labels['pages_view'] }}
+                </a>
+                <a href="{{ nav_urls['pages_conv'] }}" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700 rounded-t-lg {{ 'active' if current_tool_id == 'pages_conv' else '' }}">
+                    {{ nav_labels['pages_conv'] }}
+                </a>
                 <div class="w-px bg-slate-200 my-3 mx-1"></div>
-                <button onclick="switchTool('dat')" id="tab-dat" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700 rounded-t-lg"></button>
-                <button onclick="switchTool('winmail')" id="tab-winmail" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700 rounded-t-lg"></button>
-                <button onclick="switchTool('bin')" id="tab-bin" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700 rounded-t-lg"></button>
+                <a href="{{ nav_urls['dat'] }}" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700 rounded-t-lg {{ 'active' if current_tool_id == 'dat' else '' }}">
+                    {{ nav_labels['dat'] }}
+                </a>
+                <a href="{{ nav_urls['winmail'] }}" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700 rounded-t-lg {{ 'active' if current_tool_id == 'winmail' else '' }}">
+                    {{ nav_labels['winmail'] }}
+                </a>
+                <a href="{{ nav_urls['bin'] }}" class="tab-btn whitespace-nowrap py-3 px-4 text-sm font-bold text-slate-700 rounded-t-lg {{ 'active' if current_tool_id == 'bin' else '' }}">
+                    {{ nav_labels['bin'] }}
+                </a>
             </nav>
         </div>
     </header>
 
-    <!-- Main -->
+    <!-- Main Content -->
     <main class="flex-grow max-w-4xl mx-auto px-4 py-12 w-full">
         
-        <!-- Hero -->
-        <div class="text-center mb-10 animate-up">
-            <div class="inline-block bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-widest">Free Online Tool</div>
-            <h1 id="heroTitle" class="text-3xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight leading-tight">...</h1>
-            <p id="heroDesc" class="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">...</p>
+        <!-- Hero (Dynamic) -->
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight">{{ h1 }}</h1>
+            <p class="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">{{ desc }}</p>
         </div>
 
         <!-- Drop Zone -->
-        <div id="dropZone" class="bg-white border-4 border-dashed border-slate-200 rounded-[2.5rem] p-10 md:p-20 text-center cursor-pointer transition-all hover:border-blue-400 group relative mb-16 shadow-sm hover:shadow-lg">
+        <div id="dropZone" class="bg-white border-4 border-dashed border-slate-200 rounded-[2.5rem] p-10 md:p-20 text-center cursor-pointer transition-all hover:border-blue-400 group relative mb-16 shadow-sm">
             <input type="file" id="fileInput" class="hidden">
             
             <div id="idleState">
-                <div class="w-20 h-20 bg-slate-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform shadow-inner">
+                <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
                     <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                 </div>
-                <h2 id="dropTitle" class="text-2xl font-bold text-slate-800 mb-3">...</h2>
-                <button id="btnBrowse" class="bg-slate-900 text-white px-8 py-3.5 rounded-xl font-bold text-sm shadow-xl hover:bg-blue-600 transition-colors uppercase tracking-wider transform active:scale-95">...</button>
+                <h2 class="text-2xl font-bold text-slate-800 mb-3">Upload File</h2>
+                <button class="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-blue-600 transition-colors uppercase tracking-wider">Select File</button>
             </div>
 
-            <div id="loadingState" class="hidden absolute inset-0 bg-white/95 flex flex-col items-center justify-center z-10 rounded-[2.5rem] backdrop-blur-sm">
-                <div class="animate-spin w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full mb-6"></div>
-                <p id="loadingText" class="font-bold text-slate-600 uppercase text-xs tracking-widest animate-pulse">...</p>
+            <div id="loadingState" class="hidden absolute inset-0 bg-white/90 flex flex-col items-center justify-center z-10 rounded-[2.5rem]">
+                <div class="animate-spin w-14 h-14 border-4 border-slate-900 border-t-transparent rounded-full mb-4"></div>
+                <p class="font-bold text-slate-500 uppercase text-xs tracking-widest animate-pulse">Processing...</p>
             </div>
         </div>
 
-        <!-- Result -->
-        <div id="results" class="hidden space-y-8 animate-up">
-            <div class="flex items-center justify-between border-b border-slate-200 pb-4">
-                <div>
-                    <h3 id="resLabel" class="text-xs font-bold text-green-600 uppercase tracking-widest mb-1">Success</h3>
-                    <p id="resFilename" class="text-xl font-bold text-slate-900 truncate max-w-[200px] md:max-w-md"></p>
-                </div>
-                <button onclick="location.reload()" id="btnReset" class="text-slate-400 hover:text-red-500 text-xs font-bold uppercase tracking-wider transition-colors">Reset</button>
+        <!-- Result Section -->
+        <div id="results" class="hidden space-y-8">
+            <div class="flex items-center justify-between border-b pb-4">
+                <h3 class="text-xs font-bold text-green-600 uppercase tracking-widest">Done</h3>
+                <button onclick="location.reload()" class="text-slate-400 hover:text-red-500 text-sm font-bold uppercase">Reset</button>
             </div>
 
-            <!-- PDF Viewer (Pages) -->
+            <!-- PDF Viewer -->
             <div id="pdfBlock" class="hidden">
-                <div class="bg-slate-800 p-2 rounded-2xl shadow-2xl mb-8">
-                    <iframe id="pdfFrame" class="w-full h-[600px] md:h-[800px] bg-white rounded-xl border-none" src=""></iframe>
-                </div>
+                <iframe id="pdfFrame" class="w-full h-[600px] bg-white rounded-xl border mb-4" src=""></iframe>
                 <div class="text-center">
-                    <a id="btnDownloadPdf" href="#" class="inline-flex items-center bg-blue-600 text-white px-12 py-5 rounded-xl font-bold shadow-xl hover:bg-blue-700 transition-transform active:scale-95 text-lg">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                        Download PDF
-                    </a>
-                    <p class="mt-4 text-xs text-slate-400">Files are automatically deleted after conversion</p>
+                    <a id="btnDownloadPdf" href="#" class="inline-block bg-blue-600 text-white px-12 py-4 rounded-xl font-bold shadow-xl hover:bg-blue-700">Download PDF</a>
                 </div>
             </div>
 
-            <!-- Grid (Dat/Bin/Winmail) -->
+            <!-- Grid -->
             <div id="fileGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
-            <!-- Hex (Bin) -->
+            <!-- Hex -->
             <div id="hexBlock" class="hidden bg-slate-900 rounded-3xl p-8 text-white shadow-xl">
-                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Binary Header Preview</h4>
-                <div id="hexView" class="mono text-xs text-blue-300 break-all leading-relaxed font-light opacity-80"></div>
+                <div id="hexView" class="mono text-xs text-blue-300 break-all leading-relaxed font-light"></div>
             </div>
         </div>
 
-        <!-- SEO Content Block -->
-        <section id="infoSection" class="mt-24 border-t border-slate-200 pt-16 grid md:grid-cols-3 gap-12">
-            <div class="md:col-span-2">
-                <h2 id="infoTitle" class="text-3xl font-black text-slate-900 mb-6 tracking-tight">...</h2>
-                <div id="infoText" class="prose prose-slate max-w-none"></div>
-            </div>
-            
-            <div class="bg-slate-100 p-8 rounded-[2rem] h-fit">
-                <div class="flex items-center space-x-3 mb-4">
-                    <div class="bg-white p-2 rounded-lg shadow-sm text-green-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                    </div>
-                    <h4 id="secTitle" class="font-bold text-slate-900 text-lg">Privacy First</h4>
-                </div>
-                <p id="secText" class="text-sm text-slate-600 leading-relaxed font-medium">...</p>
+        <!-- SEO Text Block (Dynamic) -->
+        <section class="mt-24 border-t border-slate-200 pt-16">
+            <div class="prose prose-slate max-w-none">
+                {{ seo_text | safe }}
             </div>
         </section>
 
     </main>
 
-    <!-- Fat Footer for SEO Links -->
-    <footer class="bg-white border-t border-slate-200 mt-auto pt-16 pb-8">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12 text-sm" id="seoFooter">
-                <!-- Генерируется JS-ом -->
-            </div>
-            <div class="text-center text-xs text-slate-400 border-t border-slate-100 pt-8">
-                &copy; 2026 FileMaster Global. <span class="mx-2">•</span> <a href="#" class="hover:underline">Privacy Policy</a> <span class="mx-2">•</span> <a href="#" class="hover:underline">Terms</a>
-            </div>
-        </div>
+    <footer class="bg-white border-t border-slate-200 mt-auto py-12 text-center text-xs text-slate-400">
+        <p>&copy; 2024 FileMaster Global. <a href="/sitemap.xml" class="hover:underline">Sitemap</a></p>
     </footer>
 
     <script>
-        // --- CONTENT DICTIONARY (SEO OPTIMIZED) ---
-        const DICT = {
-            en: {
-                nav: { pages_view: "View .Pages", pages_conv: "Convert Pages", dat: "Open .DAT", winmail: "Fix Winmail", bin: "View .BIN" },
-                hero: {
-                    pages_view: { t: "View .Pages Files Online", d: "The easiest way to open Apple Pages documents on Windows, Android, and Linux. No software installation required." },
-                    pages_conv: { t: "Convert Pages to PDF", d: "Transform Apple Pages documents into universal PDF format instantly. Preserve your layout, fonts, and images." },
-                    dat: { t: "Open .DAT Files", d: "Identify and extract contents from unknown .dat files securely in your browser. Reveal hidden text, images, or media." },
-                    winmail: { t: "Winmail.dat Extractor", d: "Fix the 'Winmail.dat' attachment issue in Outlook. Decode TNEF files and recover your original documents." },
-                    bin: { t: "Binary File Viewer", d: "Analyze raw binary data, inspect headers, and extract embedded assets like images or archives." }
-                },
-                drop: { t: "Drag & Drop File Here", b: "Browse Device" },
-                ui: { success: "File Ready", reset: "Convert Another", dl: "Download", load: "Analyzing & Converting..." },
-                info: {
-                    pages_view: { 
-                        t: "How to Open .Pages on Windows & Android?", 
-                        d: `
-                        <p>If you've received a <strong>.pages</strong> file from a Mac user, you likely know that Windows cannot open it natively. Pages is Apple's equivalent of Microsoft Word, but it lacks cross-platform support.</p>
-                        <h3>The Solution: Online Viewer</h3>
-                        <p>You don't need to buy a Mac or install iCloud. Our tool works as a bridge. Just upload your file, and we will render it into a viewable format directly in your browser.</p>
-                        <ul>
-                            <li><strong>No Registration:</strong> Just drag and drop.</li>
-                            <li><strong>Cross-Platform:</strong> Works on Windows 10/11, Android, Linux, and ChromeOS.</li>
-                            <li><strong>Secure:</strong> Files are processed automatically.</li>
-                        </ul>` 
-                    },
-                    pages_conv: { 
-                        t: "Why Convert Pages to PDF?", 
-                        d: `
-                        <p>PDF (Portable Document Format) is the global standard for sharing documents. By converting your Apple Pages file to PDF, you ensure that the recipient sees the document exactly as you intended.</p>
-                        <h3>Benefits of our Converter:</h3>
-                        <ul>
-                            <li><strong>High Fidelity:</strong> Preserves complex formatting, tables, and images.</li>
-                            <li><strong>Privacy:</strong> We automatically delete files after 1 hour.</li>
-                            <li><strong>Fast:</strong> Powered by server-grade rendering engines.</li>
-                        </ul>
-                        <p>Perfect for students, office workers, and designers working in mixed OS environments.</p>` 
-                    },
-                    dat: { 
-                        t: "What is a .DAT File?", 
-                        d: `
-                        <p>A file with the extension <strong>.dat</strong> is a generic data container. It doesn't tell you which program created it. It could be a video (VCD), a Minecraft level, a text log, or a mail attachment.</p>
-                        <h3>How we help:</h3>
-                        <p>Our tool analyzes the <strong>Magic Bytes</strong> (file signature) at the beginning of the file to determine its true format. If it's a hidden image, archive, or text, we will extract it for you.</p>` 
-                    },
-                    winmail: { 
-                        t: "Fixing Winmail.dat Attachments", 
-                        d: `
-                        <p>If you use Gmail, Thunderbird, or Apple Mail, you might sometimes receive a useless file named <strong>winmail.dat</strong>. This happens when an Outlook user sends an email in RTF format.</p>
-                        <p>This file actually contains your attachments (Word, Excel, Photos), wrapped in a proprietary Microsoft format called TNEF. We unwrap it and give you back your original files.</p>` 
-                    },
-                    bin: { 
-                        t: "Analyzing Binary Files", 
-                        d: `<p>For developers and tech enthusiasts. This tool provides a Hex dump of the file header and attempts to perform "file carving" to find embedded assets like JPEGs or ZIPs inside raw firmware or data blobs.</p>` }
-                },
-                sec: { 
-                    server: { t: "Server-Side Processing", d: "Your .pages file is transmitted via SSL to our secure server, converted to PDF, and permanently deleted immediately after processing." }, 
-                    local: { t: "100% Client-Side", d: "This file is processed locally using JavaScript and WebAssembly. Your data never leaves your device." } 
-                },
-                seo: {
-                    pages_view: { t: "View .Pages Files Online - Open Apple Pages on Windows", d: "Free online viewer for Apple Pages files. Open .pages documents on Windows 10, 11 and Android without installing software." },
-                    pages_conv: { t: "Convert Pages to PDF Online (Free)", d: "Best free Pages to PDF converter. Transform Apple documents to PDF securely. Supports large files." }
-                }
-            },
-            // [RU, ES, PT - Переводы по аналогии, структура сохраняется]
-            ru: {
-                nav: { pages_view: "Смотреть .Pages", pages_conv: "Конвертировать Pages", dat: "Открыть .DAT", winmail: "Распаковать Winmail", bin: "Открыть .BIN" },
-                hero: {
-                    pages_view: { t: "Просмотр файлов .Pages онлайн", d: "Самый простой способ открыть документ Apple Pages на Windows или Android. Без установки программ." },
-                    pages_conv: { t: "Конвертер Pages в PDF", d: "Преобразование документов Apple Pages в формат PDF. Сохраняем шрифты, картинки и верстку." },
-                    dat: { t: "Открыть файл .DAT", d: "Бесплатный инструмент для открытия неизвестных файлов .dat. Найдем текст, фото или видео внутри." },
-                    winmail: { t: "Распаковка Winmail.dat", d: "Пришло письмо с winmail.dat? Извлеките из него нормальные файлы (Word, Excel, PDF) за секунду." },
-                    bin: { t: "Просмотр файлов .BIN", d: "Читалка бинарных файлов. Анализ структуры и просмотр Hex-кода." }
-                },
-                drop: { t: "Перетащите файл сюда", b: "Выбрать файл" },
-                ui: { success: "Готово", reset: "Сбросить", dl: "Скачать", load: "Обработка..." },
-                info: {
-                    pages_view: { 
-                        t: "Как открыть файл Pages на Windows?", 
-                        d: `<p>Формат <strong>.pages</strong> создан Apple и не открывается в Word. Если вам прислали такой файл, а у вас Windows — не паникуйте.</p><h3>Решение:</h3><p>Используйте наш онлайн-вьювер. Мы откроем документ в браузере, чтобы вы могли его прочитать.</p><ul><li>Работает на Windows 10/11</li><li>Открывает файлы с iPhone/iPad</li><li>Бесплатно и без регистрации</li></ul>` 
-                    },
-                    pages_conv: { 
-                        t: "Зачем конвертировать в PDF?", 
-                        d: `<p>PDF — это мировой стандарт. Сконвертировав Pages в PDF, вы гарантируете, что документ откроется у любого человека, независимо от его устройства.</p><h3>Преимущества:</h3><ul><li>Точное сохранение верстки</li><li>Безопасность (файлы удаляются)</li><li>Высокая скорость</li></ul>` 
-                    },
-                    dat: { t: "Что такое файл DAT?", d: `<p>DAT — это контейнер. В нем может быть что угодно: видео, текст или мусор. Мы анализируем заголовок файла (Magic Bytes), чтобы понять, какая программа его создала.</p>` },
-                    winmail: { t: "Проблема Winmail.dat", d: `<p>Этот файл генерирует Outlook. Остальные почтовые программы его не понимают. Мы "вскрываем" этот контейнер и достаем ваши вложения.</p>` },
-                    bin: { t: "Бинарный анализ", d: `<p>Инструмент для гиков. Показывает сырой код файла.</p>` }
-                },
-                sec: { server: { t: "Безопасная конвертация", d: "Файл обрабатывается на сервере и удаляется сразу после скачивания." }, local: { t: "Локальная обработка", d: "Обработка происходит в вашем браузере. Файл не отправляется в интернет." } },
-                seo: {
-                    pages_view: { t: "Открыть Pages онлайн - Просмотр на Windows и Android", d: "Как открыть файл .pages на компьютере без Mac? Бесплатный онлайн просмотрщик документов Apple Pages." },
-                    pages_conv: { t: "Конвертер Pages в PDF онлайн бесплатно", d: "Быстро конвертировать Pages в PDF. Сохранение форматирования. Без регистрации." }
-                }
-            },
-            es: {
-                nav: { pages_view: "Ver .Pages", pages_conv: "Convertir Pages", dat: "Abrir .DAT", winmail: "Extraer Winmail", bin: "Ver .BIN" },
-                hero: {
-                    pages_view: { t: "Ver archivos .Pages Online", d: "Abre documentos de Apple Pages en Windows y Android sin instalar nada." },
-                    pages_conv: { t: "Convertir Pages a PDF", d: "Transforma tus documentos Apple a PDF universal. Mantiene el formato." },
-                    dat: { t: "Abrir archivos .DAT", d: "Identifica y extrae contenido de archivos .dat desconocidos." },
-                    winmail: { t: "Abrir Winmail.dat", d: "Recupera adjuntos de Outlook. Extrae archivos de winmail.dat al instante." },
-                    bin: { t: "Visor .BIN", d: "Analiza datos binarios y cabeceras." }
-                },
-                drop: { t: "Arrastra el archivo", b: "Seleccionar" },
-                ui: { success: "Listo", reset: "Reiniciar", dl: "Descargar", load: "Procesando..." },
-                info: {
-                    pages_view: { t: "Abrir Pages en Windows", d: `<p>Windows no soporta archivos .pages nativamente. Usa nuestro visor online gratuito.</p>` },
-                    pages_conv: { t: "Pasar a PDF", d: `<p>El formato PDF asegura compatibilidad total en cualquier dispositivo.</p>` },
-                    dat: { t: "¿Qué es un archivo DAT?", d: `<p>Analizamos la firma del archivo para ver qué contiene realmente.</p>` },
-                    winmail: { t: "Error Winmail.dat", d: `<p>Decodificamos el formato TNEF de Outlook para recuperar tus archivos.</p>` },
-                    bin: { t: "Datos Binarios", d: `<p>Inspecciona cabeceras hexadecimales.</p>` }
-                },
-                sec: { server: { t: "Servidor Seguro", d: "Archivo eliminado tras la descarga." }, local: { t: "Procesamiento Local", d: "100% Privado. Los datos no salen de tu navegador." } },
-                seo: {
-                    pages_view: { t: "Abrir archivos Pages en Windows Online", d: "Visor gratuito de archivos .pages. Abre documentos Apple en PC y Android." },
-                    pages_conv: { t: "Convertir Pages a PDF Gratis Online", d: "El mejor convertidor de Pages a PDF. Rápido y seguro." }
-                }
-            },
-            pt: {
-                nav: { pages_view: "Ver .Pages", pages_conv: "Converter Pages", dat: "Abrir .DAT", winmail: "Extrair Winmail", bin: "Ver .BIN" },
-                hero: {
-                    pages_view: { t: "Ver arquivos .Pages", d: "Abra documentos Apple no Windows ou Android gratuitamente." },
-                    pages_conv: { t: "Converter Pages em PDF", d: "Transforme documentos em PDF mantendo a formatação." },
-                    dat: { t: "Abrir .DAT", d: "Extraia conteúdo de arquivos desconhecidos com segurança." },
-                    winmail: { t: "Extrator Winmail.dat", d: "Corrija anexos do Outlook. Recupere seus arquivos." },
-                    bin: { t: "Visualizador .BIN", d: "Análise binária." }
-                },
-                drop: { t: "Arraste o arquivo", b: "Selecionar" },
-                ui: { success: "Sucesso", reset: "Reiniciar", dl: "Baixar", load: "Processando..." },
-                info: {
-                    pages_view: { t: "Pages no Windows", d: `<p>Visualize arquivos .pages sem precisar de um Mac.</p>` },
-                    pages_conv: { t: "Para PDF", d: `<p>Garanta compatibilidade enviando como PDF.</p>` },
-                    dat: { t: "Arquivo DAT", d: `<p>Analisamos a estrutura interna do arquivo.</p>` },
-                    winmail: { t: "Anexos Outlook", d: `<p>Recuperamos seus arquivos originais do formato TNEF.</p>` },
-                    bin: { t: "Binário", d: `<p>Veja o código bruto.</p>` }
-                },
-                sec: { server: { t: "Servidor Seguro", d: "Deletado após o download." }, local: { t: "Processamento Local", d: "Seus dados não saem do navegador." } },
-                seo: {
-                    pages_view: { t: "Abrir arquivo .Pages no Windows Online", d: "Visualizador de Pages gratuito. Abra documentos Apple no PC." },
-                    pages_conv: { t: "Converter Pages em PDF Online", d: "Converta documentos Apple para PDF rapidamente." }
-                }
-            }
-        };
+        // PASS VARIABLES FROM PYTHON TO JS
+        const CUR_TOOL = "{{ current_tool_id }}";
 
-       // --- STATE & INIT ---
-        const params = new URLSearchParams(window.location.search);
-        
-        // 1. Получаем язык из URL
-        const urlLang = params.get('lang');
-        
-        // 2. Получаем язык браузера
-        const browserLang = (navigator.language || navigator.userLanguage).split('-')[0];
-
-        // ЛОГИКА ПРИОРИТЕТОВ:
-        let curLang = 'en'; // По умолчанию
-
-        if (urlLang && DICT[urlLang]) {
-            // Если в ссылке указан язык и он у нас есть в словаре — используем его
-            curLang = urlLang;
-        } else if (DICT[browserLang]) {
-            // Иначе, если язык браузера поддерживается — используем его
-            curLang = browserLang;
-        }
-        // Иначе остается 'en'
-
-        let curTool = params.get('tool') || 'pages_view';
-
-        if(!['pages_view','pages_conv','dat','winmail','bin'].includes(curTool)) curTool = 'pages_view';
-        
-        // Устанавливаем селект в нужное положение
-        document.getElementById('langSelect').value = curLang;
-        
-        updateUI();
-
-        // --- FUNCTIONS ---
-        function switchTool(tool) {
-            const url = new URL(window.location);
-            url.searchParams.set('tool', tool);
-            window.history.pushState({}, '', url);
-            curTool = tool;
-            updateUI();
-        }
-
-        function changeLanguage(lang) {
-            const url = new URL(window.location);
-            url.searchParams.set('lang', lang);
-            window.history.pushState({}, '', url);
-            curLang = lang;
-            updateUI();
-        }
-
-        function generateFooter() {
-            // Generates SEO links for all languages/tools
-            const tools = ['pages_view', 'pages_conv', 'dat', 'winmail'];
-            const langs = ['en', 'ru', 'es', 'pt'];
-            let html = '';
-            
-            // Column 1: English
-            html += `<div><strong class="block text-slate-900 font-bold mb-3">English Tools</strong>`;
-            tools.forEach(t => html += `<a href="?tool=${t}&lang=en" class="footer-link block mb-2">${DICT['en'].nav[t]}</a>`);
-            html += `</div>`;
-
-            // Column 2: Russian
-            html += `<div><strong class="block text-slate-900 font-bold mb-3">Инструменты (RU)</strong>`;
-            tools.forEach(t => html += `<a href="?tool=${t}&lang=ru" class="footer-link block mb-2">${DICT['ru'].nav[t]}</a>`);
-            html += `</div>`;
-
-             // Column 3: Spanish
-            html += `<div><strong class="block text-slate-900 font-bold mb-3">Herramientas (ES)</strong>`;
-            tools.forEach(t => html += `<a href="?tool=${t}&lang=es" class="footer-link block mb-2">${DICT['es'].nav[t]}</a>`);
-            html += `</div>`;
-
-             // Column 4: Links
-             html += `<div><strong class="block text-slate-900 font-bold mb-3">About</strong>
-                <a href="/" class="footer-link block mb-2">Home</a>
-                <span class="text-xs text-slate-400">Secure & Free.</span>
-             </div>`;
-
-             document.getElementById('seoFooter').innerHTML = html;
-        }
-
-        function updateSchema() {
-            // Updates JSON-LD for Google Rich Snippets
-            const T = DICT[curLang] || DICT['en'];
-            const toolName = T.nav[curTool];
-            const desc = T.hero[curTool].d;
-            
-            const schemaData = {
-                "@context": "https://schema.org",
-                "@type": "WebApplication",
-                "name": `FileMaster - ${toolName}`,
-                "url": window.location.href,
-                "applicationCategory": "UtilitiesApplication",
-                "operatingSystem": "Any",
-                "description": desc,
-                "offers": {
-                    "@type": "Offer",
-                    "price": "0",
-                    "priceCurrency": "USD"
-                }
-            };
-            document.getElementById('schemaScript').textContent = JSON.stringify(schemaData);
-        }
-
-        function updateUI() {
-            const T = DICT[curLang] || DICT['en'];
-            
-            // Tabs
-            Object.keys(T.nav).forEach(key => {
-                const btn = document.getElementById(`tab-${key}`);
-                if(btn) {
-                    btn.textContent = T.nav[key];
-                    btn.classList.remove('active');
-                }
-            });
-            document.getElementById(`tab-${curTool}`).classList.add('active');
-
-            // Hero & Texts
-            const heroData = T.hero[curTool];
-            const infoData = T.info[curTool];
-            
-            document.getElementById('heroTitle').textContent = heroData.t;
-            document.getElementById('heroDesc').textContent = heroData.d;
-            document.getElementById('dropTitle').textContent = T.drop.t;
-            document.getElementById('btnBrowse').textContent = T.drop.b;
-            document.getElementById('resLabel').textContent = T.ui.success;
-            document.getElementById('btnReset').textContent = T.ui.reset;
-            document.getElementById('loadingText').textContent = T.ui.load;
-
-            document.getElementById('infoTitle').textContent = infoData.t;
-            document.getElementById('infoText').innerHTML = infoData.d;
-
-            // Security
-            const secTitle = document.getElementById('secTitle');
-            const secText = document.getElementById('secText');
-            if (curTool.includes('pages')) {
-                secTitle.textContent = T.sec.server.t;
-                secText.textContent = T.sec.server.d;
-            } else {
-                secTitle.textContent = T.sec.local.t;
-                secText.textContent = T.sec.local.d;
-            }
-
-            // META SEO
-            // Use specific SEO title if available, else standard
-            if (T.seo && T.seo[curTool]) {
-                document.title = T.seo[curTool].t;
-                document.querySelector('meta[name="description"]').setAttribute("content", T.seo[curTool].d);
-                document.getElementById('ogTitle').setAttribute("content", T.seo[curTool].t);
-                document.getElementById('ogDesc').setAttribute("content", T.seo[curTool].d);
-            } else {
-                document.title = heroData.t + " - FileMaster";
-                document.querySelector('meta[name="description"]').setAttribute("content", heroData.d);
-            }
-
-            // Update Link Rel Canonical
-            const canonical = new URL(window.location.href);
-            canonical.searchParams.delete('lang'); // Canonical should point to main tool URL generally, or specific logic
-            document.getElementById('canonicalLink').setAttribute("href", canonical.href);
-
-            resetView();
-            generateFooter();
-            updateSchema();
-        }
-
-        function resetView() {
-            document.getElementById('results').classList.add('hidden');
-            document.getElementById('dropZone').classList.remove('hidden');
-            document.getElementById('pdfBlock').classList.add('hidden');
-            document.getElementById('hexBlock').classList.add('hidden');
-            document.getElementById('fileGrid').innerHTML = '';
-        }
-
-        // --- HANDLERS ---
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
 
@@ -539,28 +163,24 @@
             if(!file) return;
             document.getElementById('idleState').classList.add('hidden');
             document.getElementById('loadingState').classList.remove('hidden');
-            document.getElementById('resFilename').textContent = file.name;
 
             try {
-                if (file.name.toLowerCase().endsWith('.pages')) {
-                    if(!curTool.includes('pages')) {
-                        switchTool('pages_view'); 
-                    }
+                // Determine logic based on file type and current tool
+                const isPages = file.name.toLowerCase().endsWith('.pages');
+                
+                // If user uploads .pages, we convert it, unless they specifically want BIN analysis
+                if (isPages && CUR_TOOL !== 'bin') {
                     await handlePages(file);
                 } else {
                     await handleLocal(file);
                 }
+                
                 document.getElementById('dropZone').classList.add('hidden');
                 document.getElementById('results').classList.remove('hidden');
-                
-                // Track Conversion
-                if(typeof ym === 'function') { ym(106463725, 'reachGoal', 'conversion_success'); }
-                
             } catch(e) {
                 alert(e.message);
                 location.reload();
             } finally {
-                document.getElementById('idleState').classList.remove('hidden');
                 document.getElementById('loadingState').classList.add('hidden');
             }
         }
@@ -572,32 +192,28 @@
             if(!res.ok) throw new Error("Conversion failed");
             const data = await res.json();
             
-            const pdfBlock = document.getElementById('pdfBlock');
-            pdfBlock.classList.remove('hidden');
+            document.getElementById('pdfBlock').classList.remove('hidden');
             document.getElementById('pdfFrame').src = data.url;
-            
             const btn = document.getElementById('btnDownloadPdf');
             btn.href = data.url;
             btn.download = data.name;
-            btn.textContent = (DICT[curLang] || DICT['en']).ui.dl + " PDF";
-
-            if(curTool === 'pages_conv') {
-                btn.scrollIntoView({ behavior: 'smooth' });
-            }
         }
 
         async function handleLocal(file) {
             const buf = await file.arrayBuffer();
             const u8 = new Uint8Array(buf);
-            const hex = Array.from(u8.slice(0, 8)).map(b=>b.toString(16).padStart(2,'0')).join('');
-
-            if(curTool === 'bin' || curTool === 'dat') {
+            
+            // Hex View logic
+            if(CUR_TOOL === 'bin' || CUR_TOOL === 'dat') {
                 const hexStr = Array.from(u8.slice(0, 64)).map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join(' ');
                 document.getElementById('hexBlock').classList.remove('hidden');
                 document.getElementById('hexView').textContent = hexStr + "...";
             }
 
+            const hex = Array.from(u8.slice(0, 4)).map(b=>b.toString(16).padStart(2,'0')).join('');
             let found = false;
+
+            // Zip Detection (PK..)
             if(hex.startsWith('504b0304')) {
                 const zip = new JSZip();
                 const content = await zip.loadAsync(buf);
@@ -607,67 +223,56 @@
                         found = true;
                     }
                 }
-            } else if(hex.startsWith('789f3e22')) {
+            } 
+            // TNEF Detection (Winmail.dat)
+            else if(hex.startsWith('789f3e22')) {
                 parseTNEF(buf);
                 found = true;
-            } else {
-                const SIGS = [{h:'FFD8FF',e:'jpg',i:'🖼️'}, {h:'89504E47',e:'png',i:'🖼️'}, {h:'25504446',e:'pdf',i:'📄'}, {h:'494433',e:'mp3',i:'🎵'}];
-                const fh = hex.toUpperCase();
-                const s = SIGS.find(x => fh.startsWith(x.h));
-                if(s) { addCard(`file.${s.e}`, buf, 'File', s.i); found = true; }
-                else if(isText(u8)) { addCard(file.name+'.txt', buf, 'Text', '📄'); found = true; }
             }
-            if(!found) addCard(file.name, buf, 'Binary', '📦');
+            
+            if(!found) {
+                // Simple generic add
+                addCard(file.name, buf, 'File', '📄');
+            }
         }
 
         function parseTNEF(buf) {
+            // Simplified TNEF parser (same logic as before)
             const view = new DataView(buf);
-            let offset = 6, count = 0, name = null;
+            let offset = 6;
             const dec = new TextDecoder("utf-8");
-            while(offset < buf.byteLength) {
-                try {
+            try {
+                while(offset < buf.byteLength) {
                     const id = view.getUint32(offset+1, true);
                     const len = view.getUint32(offset+5, true);
                     offset += 9;
-                    const chunk = buf.slice(offset, offset+len);
-                    if(id === 0x8010) name = dec.decode(chunk).replace(/\0/g, '');
-                    else if(id === 0x800F) {
-                        count++;
-                        addCard(name || `att_${count}.bin`, chunk, 'Outlook', '📧');
-                        name = null;
+                    if(id === 0x800F) { // att data
+                        const chunk = buf.slice(offset, offset+len);
+                        addCard(`attachment.bin`, chunk, 'Outlook', '📧');
                     }
                     offset += len + 2;
-                } catch(e) { break; }
-            }
-        }
-
-        function isText(arr) {
-            let n=0;
-            for(let i=0; i<Math.min(arr.length,100); i++) if(arr[i]===0) n++;
-            return n===0;
+                }
+            } catch(e) {}
         }
 
         function addCard(name, buf, type, icon) {
             const blob = new Blob([buf]);
             const url = URL.createObjectURL(blob);
             const kb = (buf.byteLength/1024).toFixed(1) + ' KB';
-            const dlTxt = (DICT[curLang] || DICT['en']).ui.dl;
-
             const div = document.createElement('div');
             div.className = "bg-white p-4 rounded-xl border border-slate-200 flex items-center justify-between shadow-sm";
             div.innerHTML = `
                 <div class="flex items-center space-x-3 overflow-hidden">
                     <div class="text-2xl">${icon}</div>
-                    <div class="overflow-hidden">
-                        <div class="font-bold text-slate-800 text-sm truncate" title="${name}">${name}</div>
+                    <div>
+                        <div class="font-bold text-slate-800 text-sm truncate w-40">${name}</div>
                         <div class="text-[10px] uppercase text-slate-400 font-bold">${kb}</div>
                     </div>
                 </div>
-                <a href="${url}" download="${name}" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-200">${dlTxt}</a>
+                <a href="${url}" download="${name}" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-200">Download</a>
             `;
             document.getElementById('fileGrid').appendChild(div);
         }
     </script>
 </body>
 </html>
-
