@@ -132,7 +132,7 @@ async def favicon():
         return FileResponse(file_path, media_type="image/x-icon")
     return Response(status_code=204)
 
-@app.get("/robots.txt")
+@app.get("/robots.txt", methods=["GET", "HEAD"]) # Добавили методы
 async def robots():
     return Response(content="User-agent: *\nAllow: /\nSitemap: https://filemaster.online/sitemap.xml", media_type="text/plain")
 
@@ -195,3 +195,4 @@ async def download_file(file_name: str):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
