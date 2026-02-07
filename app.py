@@ -31,7 +31,7 @@ URL_MAP = {
 }
 ID_TO_URL = {v: k for k, v in URL_MAP.items()}
 
-# --- SEO CONTENT DATABASE (С фокусом на Android/Mobile) ---
+# --- SEO CONTENT DATABASE ---
 CONTENT = {
     "en": {
         "nav": {"pages_view": "View .Pages", "pages_conv": "Convert Pages", "dat": "Open .DAT", "winmail": "Fix Winmail", "bin": "View .BIN"},
@@ -101,12 +101,13 @@ CONTENT = {
             "h1": "Converter Pages para PDF",
             "text": "<h2>Garanta Compatibilidade</h2><p>O formato PDF é universal. Converta seus trabalhos no celular para garantir que todos possam lê-los.</p>"
         },
-        "dat": { "title": "Como abrir arquivo .DAT no celular? Leitor Online", "desc": "Descubra o conteúdo de arquivos .dat no seu Android. Análise de estrutura e extração de dados.", "h1": "Abrir Arquivos .DAT", "text": "<h2>O que é um arquivo DAT?</h2><p>Usamos análise binária no seu navegador para descobrir o conteúdo de arquivos DAT genéricos.</p>" },
+        "dat": { "title": "Como abrir arquivo .DAT no celular? Leitor Online", "desc": "Descubra o conteúdo de arquivos .dat no seu Android. Análise de estrutura e extração de данных.", "h1": "Abrir Arquivos .DAT", "text": "<h2>O que é un arquivo DAT?</h2><p>Usamos análise binária no seu navegador para descobrir o conteúdo de arquivos DAT genéricos.</p>" },
         "winmail": { "title": "Abrir Winmail.dat no Android - Extrair Anexos", "desc": "Corrija anexos winmail.dat do Outlook no seu smartphone. Recupere documentos Word e PDF.", "h1": "Extrator Winmail.dat", "text": "<h2>Correção para Celular</h2><p>Seu celular não abre o winmail.dat? Nós extraímos os arquivos originais do formato da Microsoft.</p>" },
         "bin": { "title": "Visualizador .BIN Online - Hex Dump para Mobile", "desc": "Visualize o código binário de qualquer arquivo no seu smartphone. Ferramenta de análise técnica.", "h1": "Visualizador Binário", "text": "<h2>Análise Hexadecimal</h2><p>Veja os bytes brutos do arquivo para identificar cabeçalhos diretamente no celular.</p>" }
     }
 }
 
+# --- ЛОГИКА РЕНДЕРИНГА ---
 async def render(request: Request, lang: str, tool_slug: str):
     if lang not in CONTENT: lang = "en"
     tool_id = URL_MAP.get(tool_slug, "pages_view")
@@ -122,7 +123,14 @@ async def render(request: Request, lang: str, tool_slug: str):
         "nav_urls": nav_urls, "lang_links": links, "current_tool_id": tool_id, "base_url": base
     })
 
-# --- МАРШРУТЫ ---
+# --- СЛУЖЕБНЫЕ МАРШРУТЫ (ДОЛЖНЫ БЫТЬ ПЕРВЫМИ) ---
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    file_path = os.path.join(STATIC_DIR, "favicon.ico")
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type="image/x-icon")
+    return Response(status_code=204)
 
 @app.get("/robots.txt")
 async def robots():
@@ -139,7 +147,8 @@ async def sitemap():
     xml = f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{"".join(urls)}</urlset>'
     return Response(content=xml, media_type="application/xml")
 
-# ГЛАВНЫЙ КОРЕНЬ С УМНЫМ РЕДИРЕКТОМ
+# --- ГЛАВНЫЕ МАРШРУТЫ ---
+
 @app.get("/")
 async def root(request: Request):
     accept_lang = request.headers.get("accept-language", "")
@@ -159,6 +168,13 @@ async def tool_en(request: Request, slug: str):
 async def tool_lang(request: Request, lang: str, slug: str):
     if lang in CONTENT and slug in URL_MAP: return await render(request, lang, slug)
     return JSONResponse(status_code=404, content={"message": "Not Found"})
+
+@app.get("/{lang}")
+async def root_lang(request: Request, lang: str):
+    if lang in CONTENT: return await render(request, lang, "pages-viewer")
+    return JSONResponse(status_code=404, content={"message": "Not Found"})
+
+# --- API ---
 
 @app.post("/convert-pages")
 def convert_pages(file: UploadFile = File(...)):
